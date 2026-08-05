@@ -82,72 +82,66 @@ body {
   --link-color: #00cdea;
   top: 12.5dvh;
   left: 6.5vw;
-  transform: rotate(-4deg);
 }
 
 .pinmusepad {
   --link-color: #f209b7;
   top: 20dvh;
   right: 7vw;
-  transform: rotate(3deg);
 }
 
 .pinbrushbalovstvo {
   --link-color: #82d700;
   bottom: 16dvh;
   left: 10vw;
-  transform: rotate(2deg);
 }
 
 .dither-excalibrator {
   --link-color: #ff5a17;
   right: 8vw;
   bottom: 20dvh;
-  transform: rotate(-3deg);
 }
 
 .ascii-vision {
   --link-color: #6029ff;
   bottom: 7dvh;
   left: 31vw;
-  transform: rotate(-1deg);
 }
 
 .kripibykva {
   --link-color: #d700ef;
   top: 7dvh;
   right: 31vw;
-  transform: rotate(4deg);
 }
 
 .sweet-crepe:hover,
 .sweet-crepe:focus-visible {
-  transform: rotate(-4deg) scale(1.06);
+  transform: scale(1.06);
 }
 
 .pinmusepad:hover,
 .pinmusepad:focus-visible {
-  transform: rotate(3deg) scale(1.06);
+  transform: scale(1.06);
 }
 
 .pinbrushbalovstvo:hover,
 .pinbrushbalovstvo:focus-visible {
-  transform: rotate(2deg) scale(1.06);
+  transform: scale(1.06);
 }
 
 .dither-excalibrator:hover,
 .dither-excalibrator:focus-visible {
-  transform: rotate(-3deg) scale(1.06);
+  transform: scale(1.06);
 }
 
 .ascii-vision:hover,
 .ascii-vision:focus-visible {
-  transform: rotate(-1deg) scale(1.06);
+  transform: scale(1.06);
 }
 
 .kripibykva:hover,
 .kripibykva:focus-visible {
-  transform: rotate(4deg) scale(1.06);
+  transform: scale(1.06);
 }
 
 @media (max-width: 700px) {
