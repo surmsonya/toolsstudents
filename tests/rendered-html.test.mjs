@@ -33,10 +33,13 @@ test("server-renders the one-screen PIN catalog", async () => {
   assert.match(html, /<model-viewer[^>]*src="\/model\.glb"/i);
   assert.match(html, /sweet-crepe/);
   assert.match(html, /pinmusepad/);
+  assert.match(html, /SCANNER-STUDIO/);
   assert.match(html, /pinbrushbalovstvo/);
   assert.match(html, /dither-excalibrator/);
   assert.match(html, /ascii-vision/);
   assert.match(html, /kripibykva/);
+  assert.match(html, /href="https:\/\/t\.me\/neurokva"/);
+  assert.ok(html.includes("тгк\u00A0@neurokva"));
 });
 
 test("keeps the catalog viewport-bound and model-ready", async () => {
@@ -49,7 +52,23 @@ test("keeps the catalog viewport-bound and model-ready", async () => {
   assert.match(css, /height:\s*100dvh/);
   assert.match(css, /overflow:\s*hidden/);
   assert.match(css, /@media \(max-width: 700px\)/);
-  assert.match(css, /"Bree Serif"/);
+  assert.match(css, /"Helvetica Neue", Helvetica/);
+  assert.match(css, /text-transform:\s*uppercase/);
+  assert.match(css, /color:\s*#d2d2d2/);
+  assert.match(css, /\.catalog-preview/);
+  assert.match(page, /https:\/\/t\.me\/neurokva/);
+  assert.match(page, /https:\/\/t\.me\/design_patch/);
+  assert.match(page, /https:\/\/t\.me\/Lexusghf/);
+  assert.match(page, /https:\/\/t\.me\/bysevostick01/);
+  assert.match(page, /https:\/\/t\.me\/sargsyanstd/);
+  assert.match(page, /\\u00A0/);
+  assert.match(page, /previewImage:\s*"\/sweet-crepe\.png"/);
+  assert.match(page, /previewImage:\s*"\/scanner-studio\.png"/);
+  assert.match(page, /previewImage:\s*"\/dither-excalibrator\.png"/);
+  assert.match(page, /previewImage:\s*"\/ascii-vision\.png"/);
+  assert.match(page, /previewImage:\s*"\/pinbrushbalovstvo\.png"/);
+  assert.match(page, /previewImage:\s*"\/kripibykva\.png"/);
+  assert.match(page, /<iframe/);
   assert.match(page, /auto-rotate/);
   assert.match(page, /camera-controls/);
   assert.match(layout, /@google\/model-viewer/);
