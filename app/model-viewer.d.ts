@@ -11,6 +11,7 @@ type ModelViewerAttributes = DetailedHTMLProps<
   class?: string;
   "interaction-prompt"?: string;
   loading?: "auto" | "eager" | "lazy";
+  poster?: string;
   "rotation-per-second"?: string;
   "shadow-intensity"?: string;
   src?: string;

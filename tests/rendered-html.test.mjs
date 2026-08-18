@@ -31,6 +31,7 @@ test("server-renders the one-screen PIN catalog", async () => {
   const html = await response.text();
   assert.match(html, /<title>PIN Tools — 3D catalog<\/title>/i);
   assert.match(html, /<model-viewer[^>]*src="\/model\.glb"/i);
+  assert.match(html, /<model-viewer[^>]*poster="\/model-poster\.webp"/i);
   assert.match(html, /sweet-crepe/);
   assert.match(html, /pinmusepad/);
   assert.match(html, /SCANNER-STUDIO/);
@@ -64,12 +65,12 @@ test("keeps the catalog viewport-bound and model-ready", async () => {
   assert.match(page, /https:\/\/t\.me\/bysevostick01/);
   assert.match(page, /https:\/\/t\.me\/sargsyanstd/);
   assert.match(page, /\\u00A0/);
-  assert.match(page, /assetPath\("\/sweet-crepe\.png"\)/);
-  assert.match(page, /assetPath\("\/scanner-studio\.png"\)/);
-  assert.match(page, /assetPath\("\/dither-excalibrator\.png"\)/);
-  assert.match(page, /assetPath\("\/ascii-vision\.png"\)/);
-  assert.match(page, /assetPath\("\/pinbrushbalovstvo\.png"\)/);
-  assert.match(page, /assetPath\("\/kripibykva\.png"\)/);
+  assert.match(page, /assetPath\("\/sweet-crepe\.webp"\)/);
+  assert.match(page, /assetPath\("\/scanner-studio\.webp"\)/);
+  assert.match(page, /assetPath\("\/dither-excalibrator\.webp"\)/);
+  assert.match(page, /assetPath\("\/ascii-vision\.webp"\)/);
+  assert.match(page, /assetPath\("\/pinbrushbalovstvo\.webp"\)/);
+  assert.match(page, /assetPath\("\/kripibykva\.webp"\)/);
   assert.match(page, /<iframe/);
   assert.match(page, /MOBILE_PREVIEW_QUERY/);
   assert.match(page, /mobile-sheet-layer/);
@@ -77,6 +78,7 @@ test("keeps the catalog viewport-bound and model-ready", async () => {
   assert.match(page, /auto-rotate/);
   assert.match(page, /camera-controls/);
   assert.match(page, /assetPath\("\/model\.glb"\)/);
+  assert.match(page, /assetPath\("\/model-poster\.webp"\)/);
   assert.match(layout, /@google\/model-viewer/);
   assert.doesNotMatch(page, /SkeletonPreview/);
   assert.doesNotMatch(layout, /codex-preview|Starter Project/);

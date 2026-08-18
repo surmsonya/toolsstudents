@@ -16,7 +16,7 @@ const links = [
       href: "https://t.me/design_patch",
     },
     description: "растягиваешь изображение по\u00A0модулям сетки",
-    previewImage: assetPath("/sweet-crepe.png"),
+    previewImage: assetPath("/sweet-crepe.webp"),
   },
   {
     label: "pinmusepad",
@@ -38,7 +38,7 @@ const links = [
       href: "https://t.me/design_patch",
     },
     description: "запускаешь сканирование и\u00A0перетаскиваешь изображение",
-    previewImage: assetPath("/scanner-studio.png"),
+    previewImage: assetPath("/scanner-studio.webp"),
   },
   {
     label: "pinbrushbalovstvo",
@@ -49,7 +49,7 @@ const links = [
       href: "https://t.me/Lexusghf",
     },
     description: "тул для рисования на\u00A0телефоне",
-    previewImage: assetPath("/pinbrushbalovstvo.png"),
+    previewImage: assetPath("/pinbrushbalovstvo.webp"),
   },
   {
     label: "dither-excalibrator",
@@ -61,7 +61,7 @@ const links = [
     },
     description:
       "нажимаешь randomize и\u00A0получаешь разные степени пикселизации изображения",
-    previewImage: assetPath("/dither-excalibrator.png"),
+    previewImage: assetPath("/dither-excalibrator.webp"),
   },
   {
     label: "ascii-vision",
@@ -72,7 +72,7 @@ const links = [
       href: "https://t.me/sargsyanstd",
     },
     description: "создание фото и\u00A0видео с\u00A0ASCII",
-    previewImage: assetPath("/ascii-vision.png"),
+    previewImage: assetPath("/ascii-vision.webp"),
   },
   {
     label: "kripibykva",
@@ -83,7 +83,7 @@ const links = [
       href: "https://t.me/neurokva",
     },
     description: "обработка фото в\u00A0крипи стилистике",
-    previewImage: assetPath("/kripibykva.png"),
+    previewImage: assetPath("/kripibykva.webp"),
   },
 ];
 
@@ -135,6 +135,7 @@ export default function Home() {
       <model-viewer
         class="catalog-model"
         src={assetPath("/model.glb")}
+        poster={assetPath("/model-poster.webp")}
         alt="Interactive 3D model"
         auto-rotate
         auto-rotate-delay="0"
