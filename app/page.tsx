@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 
 const MOBILE_PREVIEW_QUERY = "(max-width: 700px)";
+const PUBLIC_BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+const assetPath = (path: `/${string}`) => `${PUBLIC_BASE_PATH}${path}`;
 
 const links = [
   {
@@ -14,7 +16,7 @@ const links = [
       href: "https://t.me/design_patch",
     },
     description: "растягиваешь изображение по\u00A0модулям сетки",
-    previewImage: "/sweet-crepe.png",
+    previewImage: assetPath("/sweet-crepe.png"),
   },
   {
     label: "pinmusepad",
@@ -36,7 +38,7 @@ const links = [
       href: "https://t.me/design_patch",
     },
     description: "запускаешь сканирование и\u00A0перетаскиваешь изображение",
-    previewImage: "/scanner-studio.png",
+    previewImage: assetPath("/scanner-studio.png"),
   },
   {
     label: "pinbrushbalovstvo",
@@ -47,7 +49,7 @@ const links = [
       href: "https://t.me/Lexusghf",
     },
     description: "тул для рисования на\u00A0телефоне",
-    previewImage: "/pinbrushbalovstvo.png",
+    previewImage: assetPath("/pinbrushbalovstvo.png"),
   },
   {
     label: "dither-excalibrator",
@@ -59,7 +61,7 @@ const links = [
     },
     description:
       "нажимаешь randomize и\u00A0получаешь разные степени пикселизации изображения",
-    previewImage: "/dither-excalibrator.png",
+    previewImage: assetPath("/dither-excalibrator.png"),
   },
   {
     label: "ascii-vision",
@@ -70,7 +72,7 @@ const links = [
       href: "https://t.me/sargsyanstd",
     },
     description: "создание фото и\u00A0видео с\u00A0ASCII",
-    previewImage: "/ascii-vision.png",
+    previewImage: assetPath("/ascii-vision.png"),
   },
   {
     label: "kripibykva",
@@ -81,7 +83,7 @@ const links = [
       href: "https://t.me/neurokva",
     },
     description: "обработка фото в\u00A0крипи стилистике",
-    previewImage: "/kripibykva.png",
+    previewImage: assetPath("/kripibykva.png"),
   },
 ];
 
@@ -132,7 +134,7 @@ export default function Home() {
     <main className="catalog" aria-label="PIN tools catalog">
       <model-viewer
         class="catalog-model"
-        src="/model.glb"
+        src={assetPath("/model.glb")}
         alt="Interactive 3D model"
         auto-rotate
         auto-rotate-delay="0"
