@@ -57,7 +57,8 @@ body {
 }
 
 .catalog-item:hover,
-.catalog-item:focus-within {
+.catalog-item:focus-within,
+.catalog-item.is-selected {
   z-index: 3;
 }
 
@@ -76,7 +77,8 @@ body {
 }
 
 .catalog-item:hover .catalog-link,
-.catalog-item:focus-within .catalog-link {
+.catalog-item:focus-within .catalog-link,
+.catalog-item.is-selected .catalog-link {
   color: #000;
 }
 
@@ -157,6 +159,10 @@ body {
   text-decoration-thickness: 2px;
 }
 
+.mobile-sheet-layer {
+  display: none;
+}
+
 .sweet-crepe {
   top: 8dvh;
   left: 4vw;
@@ -193,6 +199,10 @@ body {
 }
 
 @media (max-width: 700px) {
+  .catalog {
+    --mobile-title-size: clamp(1.6rem, 7.5vw, 2.45rem);
+  }
+
   .catalog-model {
     width: 78vw;
     height: 52dvh;
@@ -200,7 +210,7 @@ body {
   }
 
   .catalog-link {
-    font-size: clamp(1.6rem, 7.5vw, 2.45rem);
+    font-size: var(--mobile-title-size);
     letter-spacing: -0.055em;
   }
 
@@ -251,14 +261,176 @@ body {
   }
 }
 
+@media (max-width: 700px) {
+  .catalog-preview {
+    display: none;
+  }
+
+  .mobile-sheet-layer {
+    position: fixed;
+    z-index: 20;
+    inset: 0;
+    display: block;
+  }
+
+  .mobile-sheet-backdrop {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .mobile-sheet {
+    position: absolute;
+    right: 0.75rem;
+    bottom: calc(0.75rem + env(safe-area-inset-bottom));
+    left: 0.75rem;
+    max-height: min(78svh, 44rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0.8rem 1rem 1rem;
+    border: 0;
+    border-radius: 1rem;
+    background: #d2d2d2;
+    color: #000;
+    animation: mobile-sheet-in 180ms ease-out;
+  }
+
+  .mobile-sheet-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .mobile-sheet-header h2 {
+    margin: 0;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: var(--mobile-title-size);
+    font-weight: 300;
+    line-height: 0.9;
+    letter-spacing: -0.06em;
+    text-transform: uppercase;
+  }
+
+  .mobile-sheet-close {
+    display: grid;
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+    margin: -0.45rem -0.45rem 0 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: #000;
+    font: 300 2rem/1 "Helvetica Neue", Helvetica, Arial, sans-serif;
+    cursor: pointer;
+  }
+
+  .mobile-sheet-close:focus-visible {
+    outline: none;
+    opacity: 0.55;
+  }
+
+  .mobile-sheet-preview {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    margin-top: 0.85rem;
+    overflow: hidden;
+    border: 1px solid #d2d2d2;
+    background: #fff;
+  }
+
+  .mobile-sheet-preview img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .mobile-sheet-preview iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200%;
+    height: 200%;
+    border: 0;
+    pointer-events: none;
+    transform: scale(0.5);
+    transform-origin: top left;
+  }
+
+  .mobile-sheet-copy {
+    margin-top: 0.65rem;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 0.78rem;
+    font-weight: 300;
+    line-height: 1.25;
+  }
+
+  .mobile-sheet-copy a {
+    color: #000;
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.16em;
+  }
+
+  .mobile-sheet-copy p {
+    margin: 0.15rem 0 0;
+  }
+
+  .mobile-sheet-action {
+    display: grid;
+    min-height: 48px;
+    place-items: center;
+    margin-top: 0.9rem;
+    border: 0;
+    border-radius: 0.75rem;
+    background: #bababa;
+    color: #000;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 0.8rem;
+    font-weight: 400;
+    line-height: 1;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+}
+
+@keyframes mobile-sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-sheet {
+    animation: none;
+  }
+}
+
 @media (max-height: 620px) and (orientation: landscape) {
+  .catalog {
+    --mobile-title-size: clamp(1.35rem, 3.2vw, 2.15rem);
+  }
+
   .catalog-model {
     width: min(42vw, 460px);
     height: 90dvh;
   }
 
   .catalog-link {
-    font-size: clamp(1.35rem, 3.2vw, 2.15rem);
+    font-size: var(--mobile-title-size);
   }
 
   .catalog-preview {

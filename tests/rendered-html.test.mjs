@@ -56,6 +56,8 @@ test("keeps the catalog viewport-bound and model-ready", async () => {
   assert.match(css, /text-transform:\s*uppercase/);
   assert.match(css, /color:\s*#d2d2d2/);
   assert.match(css, /\.catalog-preview/);
+  assert.match(css, /@media \(max-width: 700px\)/);
+  assert.match(css, /\.mobile-sheet/);
   assert.match(page, /https:\/\/t\.me\/neurokva/);
   assert.match(page, /https:\/\/t\.me\/design_patch/);
   assert.match(page, /https:\/\/t\.me\/Lexusghf/);
@@ -69,6 +71,9 @@ test("keeps the catalog viewport-bound and model-ready", async () => {
   assert.match(page, /previewImage:\s*"\/pinbrushbalovstvo\.png"/);
   assert.match(page, /previewImage:\s*"\/kripibykva\.png"/);
   assert.match(page, /<iframe/);
+  assert.match(page, /MOBILE_PREVIEW_QUERY/);
+  assert.match(page, /mobile-sheet-layer/);
+  assert.match(page, /открыть тул/);
   assert.match(page, /auto-rotate/);
   assert.match(page, /camera-controls/);
   assert.match(layout, /@google\/model-viewer/);

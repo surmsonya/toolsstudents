@@ -17,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ru">
       <body>{children}</body>
       <Script
         src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"

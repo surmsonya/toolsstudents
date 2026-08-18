@@ -1,9 +1,8 @@
-import type { Metadata } from "next";
+"use client";
 
-export const metadata: Metadata = {
-  title: "PIN Tools — 3D catalog",
-  description: "A one-screen collection of PIN web experiments.",
-};
+import { useEffect, useRef, useState, type MouseEvent } from "react";
+
+const MOBILE_PREVIEW_QUERY = "(max-width: 700px)";
 
 const links = [
   {
@@ -86,7 +85,49 @@ const links = [
   },
 ];
 
+type Project = (typeof links)[number];
+
 export default function Home() {
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const lastTriggerRef = useRef<HTMLAnchorElement>(null);
+
+  const closeMobilePreview = () => {
+    setSelectedProject(null);
+    window.requestAnimationFrame(() => lastTriggerRef.current?.focus());
+  };
+
+  const handleProjectClick = (
+    event: MouseEvent<HTMLAnchorElement>,
+    project: Project,
+  ) => {
+    if (!window.matchMedia(MOBILE_PREVIEW_QUERY).matches) {
+      return;
+    }
+
+    event.preventDefault();
+    lastTriggerRef.current = event.currentTarget;
+    setSelectedProject(project);
+  };
+
+  useEffect(() => {
+    if (!selectedProject) {
+      return;
+    }
+
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setSelectedProject(null);
+        window.requestAnimationFrame(() => lastTriggerRef.current?.focus());
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedProject]);
+
   return (
     <main className="catalog" aria-label="PIN tools catalog">
       <model-viewer
@@ -104,10 +145,16 @@ export default function Home() {
 
       <nav className="catalog-links" aria-label="Project links">
         {links.map((link) => (
-          <div className={`catalog-item ${link.className}`} key={link.label}>
+          <div
+            className={`catalog-item ${link.className}${
+              selectedProject?.href === link.href ? " is-selected" : ""
+            }`}
+            key={link.label}
+          >
             <a
               className="catalog-link"
               href={link.href}
+              onClick={(event) => handleProjectClick(event, link)}
               rel="noreferrer"
               target="_blank"
             >
@@ -151,6 +198,78 @@ export default function Home() {
           </div>
         ))}
       </nav>
+
+      {selectedProject ? (
+        <div className="mobile-sheet-layer">
+          <button
+            aria-label="закрыть превью"
+            className="mobile-sheet-backdrop"
+            onClick={closeMobilePreview}
+            tabIndex={-1}
+            type="button"
+          />
+
+          <section
+            aria-labelledby="mobile-sheet-title"
+            aria-modal="true"
+            className="mobile-sheet"
+            role="dialog"
+          >
+            <header className="mobile-sheet-header">
+              <h2 id="mobile-sheet-title">{selectedProject.label}</h2>
+              <button
+                aria-label="закрыть превью"
+                className="mobile-sheet-close"
+                onClick={closeMobilePreview}
+                ref={closeButtonRef}
+                type="button"
+              >
+                ×
+              </button>
+            </header>
+
+            <div className="mobile-sheet-preview">
+              {selectedProject.previewImage ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  alt=""
+                  aria-hidden="true"
+                  decoding="async"
+                  src={selectedProject.previewImage}
+                />
+              ) : (
+                <iframe
+                  aria-hidden="true"
+                  loading="lazy"
+                  src={selectedProject.href}
+                  tabIndex={-1}
+                  title={`Превью ${selectedProject.label}`}
+                />
+              )}
+            </div>
+
+            <div className="mobile-sheet-copy">
+              <a
+                href={selectedProject.telegram.href}
+                rel="noreferrer"
+                target="_blank"
+              >
+                {selectedProject.telegram.label}
+              </a>
+              <p>{selectedProject.description}</p>
+            </div>
+
+            <a
+              className="mobile-sheet-action"
+              href={selectedProject.href}
+              rel="noreferrer"
+              target="_blank"
+            >
+              открыть тул
+            </a>
+          </section>
+        </div>
+      ) : null}
     </main>
   );
 }
