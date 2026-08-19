@@ -3,13 +3,40 @@ import Script from "next/script";
 import "./globals.css";
 
 const publicBasePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+const siteUrl = "https://surmsonya.github.io/toolsstudents";
+const socialImageUrl = `${siteUrl}/og.png`;
+const title = "ПИН тулз";
+const description = "коллекция работ студентов курса ПИН школы @sholotch";
 
 export const metadata: Metadata = {
-  title: "PIN Tools — 3D catalog",
-  description: "A one-screen collection of PIN web experiments.",
+  metadataBase: new URL(siteUrl),
+  title,
+  description,
   icons: {
     icon: `${publicBasePath}/favicon.svg`,
     shortcut: `${publicBasePath}/favicon.svg`,
+  },
+  openGraph: {
+    type: "website",
+    locale: "ru_RU",
+    url: siteUrl,
+    siteName: title,
+    title,
+    description,
+    images: [
+      {
+        url: socialImageUrl,
+        width: 3024,
+        height: 1718,
+        alt: title,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+    images: [socialImageUrl],
   },
 };
 
