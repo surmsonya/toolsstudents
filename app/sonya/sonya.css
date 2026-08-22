@@ -88,6 +88,39 @@
 }
 
 /*
+ * Триггер камеры: строка без подложки, тот же трекинг и семейство, что
+ * у каталожных ссылок, кегль ещё меньше, чем у перехода «пин тулз».
+ * Живёт внутри difference-слоя и инвертирует фон вместе с остальными.
+ */
+.sonya-camera-trigger {
+  position: absolute;
+  left: 4vw;
+  bottom: 4dvh;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #b8b0a4;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: clamp(0.75rem, 1vw, 0.9rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 160ms ease;
+}
+
+.sonya-camera-trigger:hover,
+.sonya-camera-trigger:focus-visible {
+  color: #fff;
+}
+
+.sonya-camera-trigger:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+/*
  * Превью: картинка и описание под заголовком, по его левому краю.
  * Без подложки и без своей типографики — текст того же цвета, что заголовок,
  * и живёт в том же difference-слое. Показ по наведению, как на первой
@@ -286,6 +319,7 @@
   min-height: 48px;
   place-items: center;
   margin-top: 0.9rem;
+  padding: 0;
   border: 0;
   border-radius: 0.75rem;
   background: #bababa;
@@ -296,6 +330,34 @@
   line-height: 1;
   text-decoration: none;
   text-transform: uppercase;
+  cursor: pointer;
+}
+
+/* Две кнопки панели камеры в ряд, той же одеждой, что у «открыть». */
+.sonya-camera-actions {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.9rem;
+}
+
+.sonya-camera-actions .sonya-sheet-action {
+  flex: 1;
+  margin-top: 0;
+}
+
+/*
+ * На десктопе панель камеры не растягивается на всю ширину экрана —
+ * компактный поповер рядом с триггером, как задумано в плане.
+ * На тач-устройствах и узких окнах остаётся нижним листом первой страницы.
+ */
+@media (min-width: 701px) and (hover: hover) {
+  .sonya-camera-panel {
+    right: auto;
+    bottom: calc(4dvh + 2.6rem);
+    left: 4vw;
+    width: 22rem;
+    max-height: min(70svh, 34rem);
+  }
 }
 
 @keyframes sonya-sheet-in {
@@ -368,6 +430,11 @@
 
   .sonya-switch {
     right: 4vw;
+    bottom: 3dvh;
+  }
+
+  .sonya-camera-trigger {
+    left: 4vw;
     bottom: 3dvh;
   }
 

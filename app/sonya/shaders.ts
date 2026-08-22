@@ -132,13 +132,37 @@ void main() {
 `;
 
 /**
+ * Снимок видео с камеры в буфер поля: сэмплируем с учётом соотношения
+ * сторон (cover — обрезаем лишнее, не сжимаем) и зеркалим по X, как в зеркале.
+ * Пишем яркость в .r — тем же каналом, что у самого поля, поэтому
+ * накопительный проход читает оба источника одинаково.
+ */
+export const CAMERA_BLIT_FRAGMENT = /* glsl */ `
+uniform sampler2D uVideo;
+uniform vec2 uCoverScale;
+
+varying vec2 vUv;
+
+void main() {
+  vec2 uv = (vUv - 0.5) * uCoverScale + 0.5;
+  uv.x = 1.0 - uv.x;
+  uv = clamp(uv, 0.0, 1.0);
+
+  vec3 color = texture2D(uVideo, uv).rgb;
+  float luma = dot(color, vec3(0.299, 0.587, 0.114));
+  gl_FragColor = vec4(vec3(luma), 1.0);
+}
+`;
+
+/**
  * Накопительный проход (ping-pong FBO, половинное разрешение).
  * Каждый кадр: старое содержимое чуть разъезжается от центра и гаснет,
  * поверх подмешивается доля источника.
  *
- * Источник сейчас один — процедурный FBM. Этап 3 добавит вторым слагаемым
- * разностный кадр камеры и переведёт uCameraMix с нуля: ни второго набора
- * шейдеров, ни ветвления в композите для этого не понадобится.
+ * Источников два: процедурный FBM и разностный кадр камеры (только то,
+ * что изменилось между uCameraCurrent и uCameraPrevious — эти буферы
+ * снимает `CAMERA_BLIT_FRAGMENT`, тем же ping-pong, что и у самого поля).
+ * uCameraMix — единая uniform кроссфейда между ними, ~2 с на переход.
  */
 export const ACCUMULATE_FRAGMENT = /* glsl */ `
 uniform sampler2D uPrev;
@@ -148,6 +172,8 @@ uniform float uMix;
 uniform float uDecay;
 uniform float uZoom;
 uniform float uCameraMix;
+uniform sampler2D uCameraCurrent;
+uniform sampler2D uCameraPrevious;
 
 varying vec2 vUv;
 
@@ -170,7 +196,12 @@ void main() {
     ${FIELD_SHAPE.gamma.toFixed(2)}
   );
 
-  float source = field * (1.0 - uCameraMix);
+  float current = texture2D(uCameraCurrent, vUv).r;
+  float previous = texture2D(uCameraPrevious, vUv).r;
+  // усиление: слабое шевеление в тёмной комнате тоже должно быть видно
+  float cameraDiff = clamp(abs(current - previous) * 6.0, 0.0, 1.0);
+
+  float source = mix(field, cameraDiff, uCameraMix);
 
   gl_FragColor = vec4(vec3(mix(prev, source, uMix)), 1.0);
 }
@@ -214,12 +245,16 @@ void main() {
  * У модели нет UV — только POSITION и NORMAL, поэтому весь материал
  * считается от нормали в пространстве вида (matcap-подход).
  *
- * Этап 3 подмешает сюда отражение живого кадра камеры по вектору
- * reflect(-V, N) с коэффициентом uEnvMix, который сейчас равен нулю.
+ * Отражение живого кадра камеры подмешивается по вектору reflect(-V, N),
+ * спроецированному в UV кадра, с коэффициентом uEnvMix — вне камеры он
+ * равен нулю, и шейдер работает как чистый matcap.
  */
 export const MODEL_FRAGMENT = /* glsl */ `
 uniform float uTime;
 uniform float uSteps;
+uniform sampler2D uCameraVideo;
+uniform float uEnvMix;
+uniform float uCameraVideoAspect;
 
 varying vec3 vNormal;
 varying vec3 vViewDir;
@@ -251,6 +286,20 @@ void main() {
     + spec * 0.80
     + drift * 0.05;
 
+  tone = clamp(tone, 0.0, 1.0);
+
+  // отражение комнаты: reflect(-V, N) как UV кадра, зеркалим по X (как
+  // в зеркале, а не как на видео с себя) и подмешиваем сильнее на гранях —
+  // тем же fresnel, что уже посчитан для блика
+  vec3 R = reflect(-V, N);
+  vec2 envUv = R.xy * 0.5 + 0.5;
+  envUv = (envUv - 0.5) * vec2(1.0, uCameraVideoAspect) + 0.5;
+  envUv.x = 1.0 - envUv.x;
+  envUv = clamp(envUv, 0.0, 1.0);
+
+  vec3 envColor = texture2D(uCameraVideo, envUv).rgb;
+  float envLuma = dot(envColor, vec3(0.299, 0.587, 0.114));
+  tone = mix(tone, tone * 0.35 + envLuma * 0.65, uEnvMix * fresnel);
   tone = clamp(tone, 0.0, 1.0);
 
   // постеризация с упорядоченным дизерингом — печатная грязь вместо градиента

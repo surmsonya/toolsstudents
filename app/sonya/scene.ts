@@ -3,6 +3,7 @@ import {
   Camera,
   ClampToEdgeWrapping,
   ColorManagement,
+  DataTexture,
   Group,
   HalfFloatType,
   LinearFilter,
@@ -16,6 +17,7 @@ import {
   Timer,
   Vector2,
   Vector3,
+  VideoTexture,
   WebGLRenderTarget,
   WebGLRenderer,
 } from "three";
@@ -28,6 +30,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import {
   ACCUMULATE_FRAGMENT,
   BACKGROUND_TONES,
+  CAMERA_BLIT_FRAGMENT,
   COMPOSITE_FRAGMENT,
   FULLSCREEN_VERTEX,
   MODEL_FRAGMENT,
@@ -48,6 +51,8 @@ type SceneOptions = {
 
 export type SceneHandle = {
   dispose: () => void;
+  /** Камера включилась/выключилась — сцена сама заводит текстуру и кроссфейд. */
+  setCameraActive: (video: HTMLVideoElement | null) => void;
 };
 
 /** Доля высоты экрана, которую занимает модель. 1 / 1.3 ≈ 78%, как на первой странице. */
@@ -79,6 +84,14 @@ const FIELD_SCALE = 2;
 const PRIME_STEPS = 90;
 const PRIME_DELTA = 1 / 60;
 
+/**
+ * Кроссфейд «шум ↔ камера», единая uniform на фон и модель (§3 плана):
+ * ~2 с до почти полного перехода — 1 − e⁻ᵏᵗ при k=1.6 даёт 0.96 за 2 с.
+ */
+const CAMERA_CROSSFADE_RATE = 1.6;
+/** Ниже этого порога кроссфейд считается завершённым — можно освобождать текстуру. */
+const CAMERA_MIX_EPSILON = 0.002;
+
 export function createScene(options: SceneOptions): SceneHandle {
   const { canvas, modelUrl, pointer, onReady, onError } = options;
 
@@ -100,12 +113,21 @@ export function createScene(options: SceneOptions): SceneHandle {
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const coarsePointer = window.matchMedia("(pointer: coarse)");
 
+  // Заглушка для сэмплеров камеры, пока камера выключена: без реальной
+  // текстуры WebGL ругается на несвязанный сэмплер, даже если её вклад
+  // умножается на нулевой uCameraMix/uEnvMix.
+  const blackTexture = new DataTexture(new Uint8Array([0, 0, 0, 255]), 1, 1);
+  blackTexture.needsUpdate = true;
+
   const uniforms = {
     uShadow: { value: hexToRgb(PALETTE.shadow) },
     uMid: { value: hexToRgb(PALETTE.mid) },
     uLight: { value: hexToRgb(PALETTE.light) },
     uSteps: { value: TONE_STEPS },
     uTime: { value: 0 },
+    uCameraVideo: { value: blackTexture as VideoTexture | DataTexture },
+    uEnvMix: { value: 0 },
+    uCameraVideoAspect: { value: 1 },
   };
 
   const material = new ShaderMaterial({
@@ -132,14 +154,29 @@ export function createScene(options: SceneOptions): SceneHandle {
     uMix: { value: 0 },
     uDecay: { value: 1 },
     uZoom: { value: 1 },
-    // этап 3 переведёт это с нуля и подмешает разностный кадр камеры
     uCameraMix: { value: 0 },
+    uCameraCurrent: { value: blackTexture as WebGLRenderTarget["texture"] },
+    uCameraPrevious: { value: blackTexture as WebGLRenderTarget["texture"] },
   };
 
   const accumulateMaterial = new ShaderMaterial({
     uniforms: accumulateUniforms,
     vertexShader: FULLSCREEN_VERTEX,
     fragmentShader: ACCUMULATE_FRAGMENT,
+    depthTest: false,
+    depthWrite: false,
+  });
+
+  /** Снимок кадра камеры в буфер поля — см. `CAMERA_BLIT_FRAGMENT`. */
+  const camBlitUniforms = {
+    uVideo: { value: blackTexture as VideoTexture | DataTexture },
+    uCoverScale: { value: new Vector2(1, 1) },
+  };
+
+  const camBlitMaterial = new ShaderMaterial({
+    uniforms: camBlitUniforms,
+    vertexShader: FULLSCREEN_VERTEX,
+    fragmentShader: CAMERA_BLIT_FRAGMENT,
     depthTest: false,
     depthWrite: false,
   });
@@ -172,6 +209,7 @@ export function createScene(options: SceneOptions): SceneHandle {
 
   const accumulateScene = makeQuad(accumulateMaterial);
   const compositeScene = makeQuad(compositeMaterial);
+  const camBlitScene = makeQuad(camBlitMaterial);
 
   const makeField = (width: number, height: number) =>
     new WebGLRenderTarget(width, height, {
@@ -190,6 +228,117 @@ export function createScene(options: SceneOptions): SceneHandle {
   let fields: [WebGLRenderTarget, WebGLRenderTarget] | null = null;
   let readIndex = 0;
   const drawingSize = new Vector2();
+
+  // Камера: живая VideoTexture для отражения на модели плюс пара буферов
+  // «текущий/предыдущий кадр» того же размера, что и поле, — накопительный
+  // проход сравнивает их и получает разностный кадр (см. shaders.ts).
+  let cameraTexture: VideoTexture | null = null;
+  let cameraVideoAspect = 4 / 3;
+  let camFields: [WebGLRenderTarget, WebGLRenderTarget] | null = null;
+  let camReadIndex = 0;
+  let cameraMixTarget = 0;
+  let cameraMixValue = 0;
+
+  /** cover-crop: доля UV кадра камеры, которая реально попадает в буфер. */
+  const coverScale = (containerAspect: number, imageAspect: number) =>
+    containerAspect > imageAspect
+      ? ([1, imageAspect / containerAspect] as const)
+      : ([containerAspect / imageAspect, 1] as const);
+
+  const blitCameraFrame = (target: WebGLRenderTarget) => {
+    if (!cameraTexture) {
+      return;
+    }
+    camBlitUniforms.uVideo.value = cameraTexture;
+    const [scaleX, scaleY] = coverScale(
+      target.width / target.height,
+      cameraVideoAspect,
+    );
+    camBlitUniforms.uCoverScale.value.set(scaleX, scaleY);
+
+    renderer.setRenderTarget(target);
+    renderer.render(camBlitScene, quadCamera);
+    renderer.setRenderTarget(null);
+  };
+
+  /** Заводит (или пересоздаёт под новый размер) буферы кадров камеры. */
+  const ensureCamFields = () => {
+    if (!fields || !cameraTexture) {
+      return;
+    }
+
+    const width = fields[0].width;
+    const height = fields[0].height;
+    if (camFields && camFields[0].width === width && camFields[0].height === height) {
+      return;
+    }
+
+    camFields?.forEach((field) => field.dispose());
+    camFields = [makeField(width, height), makeField(width, height)];
+    camReadIndex = 0;
+
+    // Снимаем текущий кадр в оба буфера: иначе первый расчёт разницы
+    // сравнивал бы живое видео с пустым (чёрным) буфером — вспышка на
+    // весь экран вместо тихого старта.
+    blitCameraFrame(camFields[0]);
+    blitCameraFrame(camFields[1]);
+    accumulateUniforms.uCameraCurrent.value = camFields[0].texture;
+    accumulateUniforms.uCameraPrevious.value = camFields[1].texture;
+  };
+
+  /** Один шаг разностного кадра: снимок текущего кадра, диф со старым. */
+  const updateCameraDiff = () => {
+    if (!camFields || !cameraTexture) {
+      return;
+    }
+
+    const writeTarget = camFields[1 - camReadIndex];
+    blitCameraFrame(writeTarget);
+
+    accumulateUniforms.uCameraCurrent.value = writeTarget.texture;
+    accumulateUniforms.uCameraPrevious.value = camFields[camReadIndex].texture;
+
+    camReadIndex = 1 - camReadIndex;
+  };
+
+  const releaseCameraTexture = () => {
+    cameraTexture?.dispose();
+    cameraTexture = null;
+    camFields?.forEach((field) => field.dispose());
+    camFields = null;
+    accumulateUniforms.uCameraCurrent.value = blackTexture;
+    accumulateUniforms.uCameraPrevious.value = blackTexture;
+    uniforms.uCameraVideo.value = blackTexture;
+  };
+
+  const setCameraActive = (video: HTMLVideoElement | null) => {
+    if (video) {
+      cameraTexture?.dispose();
+      cameraTexture = new VideoTexture(video);
+      cameraTexture.minFilter = LinearFilter;
+      cameraTexture.magFilter = LinearFilter;
+      cameraTexture.generateMipmaps = false;
+
+      const readAspect = () => {
+        if (video.videoWidth && video.videoHeight) {
+          cameraVideoAspect = video.videoWidth / video.videoHeight;
+          uniforms.uCameraVideoAspect.value = cameraVideoAspect;
+        }
+      };
+      readAspect();
+      if (!video.videoWidth) {
+        video.addEventListener("loadedmetadata", readAspect, { once: true });
+      }
+
+      uniforms.uCameraVideo.value = cameraTexture;
+      cameraMixTarget = 1;
+      ensureCamFields();
+    } else {
+      cameraMixTarget = 0;
+      // текстуру не гасим сразу — кроссфейд ещё идёт кадры, снимок
+      // остаётся источником диффа, пока uCameraMix не дойдёт до нуля
+    }
+  };
 
   /** Один шаг накопления: старое поле разъезжается и гаснет, источник подмешивается. */
   const accumulate = (step: number) => {
@@ -247,32 +396,33 @@ export function createScene(options: SceneOptions): SceneHandle {
     const width = Math.max(1, Math.round(drawingSize.x / FIELD_SCALE));
     const height = Math.max(1, Math.round(drawingSize.y / FIELD_SCALE));
 
-    if (fields && fields[0].width === width && fields[0].height === height) {
-      return;
+    if (!fields || fields[0].width !== width || fields[0].height !== height) {
+      const previous = fields;
+      const carried = previous ? previous[readIndex] : null;
+
+      fields = [makeField(width, height), makeField(width, height)];
+      readIndex = 0;
+
+      // ячейки шума считаем квадратными, иначе на широком экране
+      // жгуты растягиваются в горизонтальные полосы
+      const aspect = width / height;
+      accumulateUniforms.uAspect.value.set(
+        Math.max(aspect, 1),
+        Math.max(1 / aspect, 1),
+      );
+
+      if (carried) {
+        carryOver(carried);
+      } else {
+        // первая пара буферов пуста — без прогрева страница открылась бы чёрной
+        primeField();
+      }
+
+      previous?.forEach((field) => field.dispose());
     }
 
-    const previous = fields;
-    const carried = previous ? previous[readIndex] : null;
-
-    fields = [makeField(width, height), makeField(width, height)];
-    readIndex = 0;
-
-    // ячейки шума считаем квадратными, иначе на широком экране
-    // жгуты растягиваются в горизонтальные полосы
-    const aspect = width / height;
-    accumulateUniforms.uAspect.value.set(
-      Math.max(aspect, 1),
-      Math.max(1 / aspect, 1),
-    );
-
-    if (carried) {
-      carryOver(carried);
-    } else {
-      // первая пара буферов пуста — без прогрева страница открылась бы чёрной
-      primeField();
-    }
-
-    previous?.forEach((field) => field.dispose());
+    // буферы кадров камеры того же размера, что и поле — держим их в шаге
+    ensureCamFields();
   };
 
   let modelRadius = { vertical: 1, horizontal: 1 };
@@ -338,6 +488,22 @@ export function createScene(options: SceneOptions): SceneHandle {
     if (!reducedMotion.matches) {
       spin += step * AUTO_SPIN;
       uniforms.uTime.value += step;
+
+      // Единая uniform кроссфейда «шум ↔ камера» на фон и модель (§3 плана).
+      const crossfadeDamping = 1 - Math.exp(-step * CAMERA_CROSSFADE_RATE);
+      cameraMixValue += (cameraMixTarget - cameraMixValue) * crossfadeDamping;
+      accumulateUniforms.uCameraMix.value = cameraMixValue;
+      uniforms.uEnvMix.value = cameraMixValue;
+
+      if (cameraTexture) {
+        if (cameraMixTarget === 0 && cameraMixValue <= CAMERA_MIX_EPSILON) {
+          // кроссфейд назад к шуму завершён — освобождаем ресурсы камеры
+          releaseCameraTexture();
+        } else {
+          updateCameraDiff();
+        }
+      }
+
       accumulate(step);
     }
 
@@ -457,6 +623,7 @@ export function createScene(options: SceneOptions): SceneHandle {
   resize();
 
   return {
+    setCameraActive,
     dispose() {
       disposed = true;
       stop();
@@ -475,7 +642,11 @@ export function createScene(options: SceneOptions): SceneHandle {
       quadGeometry.dispose();
       accumulateMaterial.dispose();
       compositeMaterial.dispose();
+      camBlitMaterial.dispose();
       fields?.forEach((field) => field.dispose());
+      camFields?.forEach((field) => field.dispose());
+      cameraTexture?.dispose();
+      blackTexture.dispose();
       timer.dispose();
       dracoLoader.dispose();
       renderer.dispose();

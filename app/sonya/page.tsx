@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 
 import { assetPath, sonyaLinks, type SonyaLink } from "../catalog-data";
+import { createCameraController, type CameraStatus } from "./camera";
 import { PALETTE } from "./shaders";
 import "./sonya.css";
 
@@ -21,10 +22,20 @@ const SHEET_QUERY = "(max-width: 700px), (hover: none)";
 
 export default function SonyaPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const sceneRef = useRef<SceneHandle | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [sheetLink, setSheetLink] = useState<SonyaLink | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const lastTriggerRef = useRef<HTMLAnchorElement>(null);
+
+  const cameraVideoRef = useRef<HTMLVideoElement | null>(null);
+  const cameraControllerRef = useRef<ReturnType<
+    typeof createCameraController
+  > | null>(null);
+  const [cameraStatus, setCameraStatus] = useState<CameraStatus>("idle");
+  const [cameraPanelOpen, setCameraPanelOpen] = useState(false);
+  const cameraCloseButtonRef = useRef<HTMLButtonElement>(null);
+  const cameraTriggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -59,12 +70,35 @@ export default function SonyaPage() {
           console.error("сцена /sonya не загрузилась", error);
         },
       });
+
+      sceneRef.current = scene;
+      // камера могла включиться раньше, чем сцена успела загрузиться
+      if (cameraVideoRef.current) {
+        scene.setCameraActive(cameraVideoRef.current);
+      }
     })();
 
     return () => {
       cancelled = true;
+      sceneRef.current = null;
       scene?.dispose();
       tracker?.dispose();
+    };
+  }, []);
+
+  useEffect(() => {
+    const controller = createCameraController({
+      onStatusChange: setCameraStatus,
+      onStreamChange: (video) => {
+        cameraVideoRef.current = video;
+        sceneRef.current?.setCameraActive(video);
+      },
+    });
+    cameraControllerRef.current = controller;
+
+    return () => {
+      cameraControllerRef.current = null;
+      controller.dispose();
     };
   }, []);
 
@@ -82,6 +116,7 @@ export default function SonyaPage() {
     }
 
     event.preventDefault();
+    setCameraPanelOpen(false);
     lastTriggerRef.current = event.currentTarget;
     setSheetLink(link);
   };
@@ -103,6 +138,51 @@ export default function SonyaPage() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [sheetLink]);
+
+  const closeCameraPanel = () => {
+    setCameraPanelOpen(false);
+    window.requestAnimationFrame(() => cameraTriggerRef.current?.focus());
+  };
+
+  const handleCameraTriggerClick = () => {
+    if (cameraStatus === "active") {
+      cameraControllerRef.current?.stop();
+      return;
+    }
+
+    setSheetLink(null);
+    setCameraPanelOpen(true);
+  };
+
+  const handleCameraEnable = () => {
+    cameraControllerRef.current?.start();
+    setCameraPanelOpen(false);
+  };
+
+  useEffect(() => {
+    if (!cameraPanelOpen) {
+      return;
+    }
+
+    cameraCloseButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setCameraPanelOpen(false);
+        window.requestAnimationFrame(() => cameraTriggerRef.current?.focus());
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [cameraPanelOpen]);
+
+  const cameraTriggerLabel =
+    cameraStatus === "active"
+      ? "выключить камеру"
+      : cameraStatus === "blocked"
+        ? "камера заблокирована"
+        : "включить камеру";
 
   return (
     <main
@@ -160,16 +240,30 @@ export default function SonyaPage() {
           </div>
         ))}
 
+        {/*
+          Строка без подложки, тот же трекинг, что у ссылок каталога,
+          кегль меньше — живёт в том же difference-слое и инвертирует фон.
+        */}
+        <button
+          className="sonya-camera-trigger"
+          disabled={cameraStatus === "pending"}
+          onClick={handleCameraTriggerClick}
+          ref={cameraTriggerRef}
+          type="button"
+        >
+          {cameraTriggerLabel}
+        </button>
+
         <Link className="sonya-switch" href="/">
           пин тулз
         </Link>
       </nav>
 
       {/*
-        Лист рендерится вне слоя ссылок: там difference, и серая подложка
-        ушла бы в инверсию вместе с содержимым. Здесь он остаётся плоским
-        и матовым поверх кипящего фона — тем же куском первой страницы,
-        каким на этапе 3 станет панель камеры.
+        Лист и панель камеры рендерятся вне слоя ссылок: там difference,
+        и серая подложка ушла бы в инверсию вместе с содержимым. Здесь они
+        остаются плоскими и матовыми поверх кипящего фона — тем же куском
+        первой страницы.
       */}
       {sheetLink ? (
         <div className="sonya-sheet-layer">
@@ -230,6 +324,79 @@ export default function SonyaPage() {
             >
               открыть
             </a>
+          </section>
+        </div>
+      ) : null}
+
+      {cameraPanelOpen ? (
+        <div className="sonya-sheet-layer">
+          <button
+            aria-label="закрыть"
+            className="sonya-sheet-backdrop"
+            onClick={closeCameraPanel}
+            tabIndex={-1}
+            type="button"
+          />
+
+          <section
+            aria-labelledby="sonya-camera-title"
+            aria-modal="true"
+            className="sonya-sheet sonya-camera-panel"
+            role="dialog"
+          >
+            <header className="sonya-sheet-header">
+              <h2 id="sonya-camera-title">камера</h2>
+              <button
+                aria-label="закрыть"
+                className="sonya-sheet-close"
+                onClick={closeCameraPanel}
+                ref={cameraCloseButtonRef}
+                type="button"
+              >
+                ×
+              </button>
+            </header>
+
+            {cameraStatus === "blocked" ? (
+              <>
+                <p className="sonya-sheet-copy">
+                  Доступ к камере отключён в настройках браузера. Чтобы
+                  включить, разрешите камеру для этого сайта и обновите
+                  страницу.
+                </p>
+                <div className="sonya-camera-actions">
+                  <button
+                    className="sonya-sheet-action"
+                    onClick={closeCameraPanel}
+                    type="button"
+                  >
+                    понятно
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="sonya-sheet-copy">
+                  Изображение остаётся в браузере и никуда не отправляется.
+                </p>
+                <div className="sonya-camera-actions">
+                  <button
+                    className="sonya-sheet-action"
+                    onClick={handleCameraEnable}
+                    type="button"
+                  >
+                    включить
+                  </button>
+                  <button
+                    className="sonya-sheet-action"
+                    onClick={closeCameraPanel}
+                    type="button"
+                  >
+                    не надо
+                  </button>
+                </div>
+              </>
+            )}
           </section>
         </div>
       ) : null}
