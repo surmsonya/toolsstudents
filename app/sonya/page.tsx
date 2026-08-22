@@ -12,11 +12,12 @@ import type { SceneHandle } from "./scene";
 import type { PointerTracker } from "./tracking";
 
 /**
- * Там, где наведения нет, превью показывается нижним листом по нажатию —
- * ровно тот же жест, что на первой странице. Условие то же, по которому
- * прячется ховерное превью, чтобы между ними не осталось щели.
+ * Там, где превью не показать наведением, оно показывается нижним листом
+ * по нажатию — ровно тот же жест, что на первой странице. Условие то же,
+ * по которому прячется ховерное превью, чтобы между ними не осталось щели:
+ * узкое окно или тач-устройство любой ширины.
  */
-const NO_HOVER_QUERY = "(hover: none)";
+const SHEET_QUERY = "(max-width: 700px), (hover: none)";
 
 export default function SonyaPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -76,7 +77,7 @@ export default function SonyaPage() {
     event: MouseEvent<HTMLAnchorElement>,
     link: SonyaLink,
   ) => {
-    if (!window.matchMedia(NO_HOVER_QUERY).matches) {
+    if (!window.matchMedia(SHEET_QUERY).matches) {
       return;
     }
 

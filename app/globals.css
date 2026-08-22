@@ -214,16 +214,6 @@ body {
     letter-spacing: -0.055em;
   }
 
-  .catalog-preview {
-    top: calc(100% + 0.5rem);
-    width: clamp(7.5rem, 34vw, 9.5rem);
-  }
-
-  .catalog-preview p {
-    margin-top: 0.3rem;
-    font-size: 0.65rem;
-  }
-
   .sweet-crepe {
     top: 6dvh;
     left: 4vw;
@@ -261,7 +251,12 @@ body {
   }
 }
 
-@media (max-width: 700px) {
+/*
+ * Лист выезжает и при сужении окна, и на любом тач-устройстве: одно
+ * объединённое условие вместо двух разных, чтобы между спрятанным ховерным
+ * превью и листом не оставалось щели.
+ */
+@media (max-width: 700px), (hover: none) {
   .catalog-preview {
     display: none;
   }
@@ -309,7 +304,7 @@ body {
   .mobile-sheet-header h2 {
     margin: 0;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: var(--mobile-title-size);
+    font-size: var(--mobile-title-size, 1.9rem);
     font-weight: 300;
     line-height: 0.9;
     letter-spacing: -0.06em;
@@ -416,6 +411,24 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .mobile-sheet {
     animation: none;
+  }
+}
+
+/*
+ * Порог замерен, а не выбран: превью самого нижнего пункта (ascii-vision,
+ * 75dvh) перестаёт помещаться в кадр примерно с 935 px по высоте. Ниже этого
+ * лечим тем же, чем и короткий ландшафт ниже, — сжатием превью, только мягче.
+ * 1512×982 остаётся нетронутым, 1440×900 и 1280×800 попадают под правило.
+ */
+@media (max-height: 940px) {
+  .catalog-preview {
+    top: calc(100% + 0.4rem);
+    width: clamp(7.5rem, 11vw, 10rem);
+  }
+
+  .catalog-preview p {
+    margin-top: 0.25rem;
+    font-size: 0.8rem;
   }
 }
 

@@ -120,7 +120,7 @@ export const sonyaLinks: SonyaLink[] = [
     href: "https://zoyasonya.vercel.app",
     className: "s-01",
     description:
-      "Коллаборация преподавательниц Щелочи! Соня-нейронки, Зоя-иллюстрация! А вместе-взрыв приколов и\u00A0арта",
+      "Коллаборация преподавательниц Щелочи! Соня-нейронки, Зоя-иллюстрация! А\u00A0вместе-взрыв приколов и\u00A0арта",
     previewImage: assetPath("/sonyazoya.jpg"),
   },
   {
@@ -136,7 +136,7 @@ export const sonyaLinks: SonyaLink[] = [
     href: "https://aiteam-i9s6-nine.vercel.app",
     className: "s-03",
     description:
-      "чем вдохновляются артовые ребята вокруг нас? задаваясь этим вопросом, я навайбкодила сайт с\u00A0рефами от\u00A0участников команды НЕЙРО Щ (бонус: к\u00A0рефам приложены коды мудбордов для\u00A0миджа 👅)",
+      "чем вдохновляются артовые ребята вокруг нас? задаваясь этим вопросом, я\u00A0навайбкодила сайт с\u00A0рефами от\u00A0участников команды НЕЙРО\u00A0Щ (бонус: к\u00A0рефам приложены коды мудбордов для\u00A0миджа 👅)",
     previewImage: null,
   },
   {
@@ -144,7 +144,7 @@ export const sonyaLinks: SonyaLink[] = [
     href: "https://www.figma.com/community/plugin/1667255153798092716/fake-print",
     className: "s-04",
     description:
-      "Фигма плагин, культивирующий препринт эстетику. В\u00A0cmyk не переводит, dpi не повышает, но метки накладывает элегантнейше и настроен очень удобно!",
+      "Фигма плагин, культивирующий препринт эстетику. В\u00A0cmyk не\u00A0переводит, dpi не\u00A0повышает, но\u00A0метки накладывает элегантнейше и\u00A0настроен очень удобно!",
     previewImage: assetPath("/fake-print.jpg"),
   },
   {
@@ -152,7 +152,7 @@ export const sonyaLinks: SonyaLink[] = [
     href: "https://www.figma.com/community/plugin/1666113501156385382/proof-marks",
     className: "s-05",
     description:
-      "плагин для\u00A0фигмы, который расставляет непечатаемые символы в\u00A0тексте и позволяет их кастомизировать!",
+      "плагин для\u00A0фигмы, который расставляет непечатаемые символы в\u00A0тексте и\u00A0позволяет их кастомизировать!",
     previewImage: assetPath("/proof-marks.png"),
   },
   {
@@ -160,7 +160,7 @@ export const sonyaLinks: SonyaLink[] = [
     href: "https://t.me/fifa_sh_bot",
     className: "s-06",
     description:
-      "⚽️⚽️⚽️⚽️⚽️\nщелочные фифа карточки на\u00A0сезон чм2026\n\nСТАНЬ УЧАСТНИКОМ Щ КОМАНДЫ С ФИФА Щ БОТ",
+      "⚽️⚽️⚽️⚽️⚽️\nщелочные фифа карточки на\u00A0сезон чм2026\n\nСТАНЬ УЧАСТНИКОМ\u00A0Щ КОМАНДЫ С\u00A0ФИФА\u00A0Щ\u00A0БОТ",
     previewImage: assetPath("/fifa-sh-bot.jpg"),
   },
   {

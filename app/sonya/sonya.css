@@ -110,8 +110,12 @@
   opacity: 1;
 }
 
-/* где наведения нет, превью не показывается вовсе: нажатие открывает ссылку */
-@media (hover: none) {
+/*
+ * Где превью не показать наведением, его показывает нижний лист по нажатию.
+ * Условие объединённое и совпадает с первой страницей: и узкое окно,
+ * и любое тач-устройство.
+ */
+@media (max-width: 700px), (hover: none) {
   .sonya-preview {
     display: none;
   }
@@ -148,7 +152,7 @@
   margin: 0.4rem 0 0;
   color: #b8b0a4;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 0.8rem;
+  font-size: 1rem;
   font-weight: 300;
   line-height: 1.25;
   letter-spacing: 0;
@@ -391,6 +395,27 @@
   }
 }
 
+/*
+ * Низкий экран: правая колонка держит три блока подряд (s-02, s-05, s-04),
+ * и нижний из них уезжает под кадр примерно с 935 px по высоте — тот же
+ * порог, что и на первой странице.
+ *
+ * Лекарство то же — сжатие превью, но пропорции другие: описания здесь
+ * длинные, и сужение колонки только вытягивает текст вниз. Поэтому по высоте
+ * выигрываем кеглем, а ширину трогаем чуть-чуть.
+ */
+@media (max-height: 940px) {
+  .sonya-preview {
+    margin-top: 0.4rem;
+    width: clamp(10rem, 15vw, 13rem);
+  }
+
+  .sonya-preview p {
+    margin-top: 0.3rem;
+    font-size: 0.72rem;
+  }
+}
+
 @media (max-height: 620px) and (orientation: landscape) {
   .sonya {
     --sonya-title-size: clamp(1.35rem, 3.2vw, 2.15rem);
@@ -398,5 +423,17 @@
 
   .sonya-link {
     font-size: var(--sonya-title-size);
+  }
+
+  /* здесь кегль падает достаточно, чтобы узкая колонка уже не вытягивала
+     текст вниз, — можно сжимать и по ширине, как на первой странице */
+  .sonya-preview {
+    margin-top: 0.35rem;
+    width: clamp(6.5rem, 12vw, 8rem);
+  }
+
+  .sonya-preview p {
+    margin-top: 0.25rem;
+    font-size: 0.58rem;
   }
 }

@@ -6,7 +6,12 @@ import { useEffect, useRef, useState, type MouseEvent } from "react";
 
 import { assetPath, links, type Project } from "./catalog-data";
 
-const MOBILE_PREVIEW_QUERY = "(max-width: 700px)";
+/*
+ * Лист заменяет ховерное превью и при сужении окна, и на тач-устройстве
+ * любой ширины. Условие должно совпадать с тем, по которому в globals.css
+ * прячется .catalog-preview, иначе между ними останется щель.
+ */
+const MOBILE_PREVIEW_QUERY = "(max-width: 700px), (hover: none)";
 
 export default function Home() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
