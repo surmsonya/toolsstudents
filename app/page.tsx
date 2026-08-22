@@ -1,93 +1,12 @@
 "use client";
 
+import Link from "next/link";
+import Script from "next/script";
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 
+import { assetPath, links, type Project } from "./catalog-data";
+
 const MOBILE_PREVIEW_QUERY = "(max-width: 700px)";
-const PUBLIC_BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-const assetPath = (path: `/${string}`) => `${PUBLIC_BASE_PATH}${path}`;
-
-const links = [
-  {
-    label: "sweet-crepe",
-    href: "https://sweet-crepe-eab810.netlify.app",
-    className: "sweet-crepe",
-    telegram: {
-      label: "тгк\u00A0@design_patch",
-      href: "https://t.me/design_patch",
-    },
-    description: "растягиваешь изображение по\u00A0модулям сетки",
-    previewImage: assetPath("/sweet-crepe.webp"),
-  },
-  {
-    label: "pinmusepad",
-    href: "https://pinmusepad.netlify.app/",
-    className: "pinmusepad",
-    telegram: {
-      label: "тг\u00A0@Lexusghf",
-      href: "https://t.me/Lexusghf",
-    },
-    description: "вкатиться в\u00A0создание музыки",
-    previewImage: null,
-  },
-  {
-    label: "SCANNER-STUDIO",
-    href: "https://irina-mov.github.io/scannerstudio_designpatch/",
-    className: "scanner-studio",
-    telegram: {
-      label: "тгк\u00A0@design_patch",
-      href: "https://t.me/design_patch",
-    },
-    description: "запускаешь сканирование и\u00A0перетаскиваешь изображение",
-    previewImage: assetPath("/scanner-studio.webp"),
-  },
-  {
-    label: "pinbrushbalovstvo",
-    href: "https://pinbrushbalovstvo.netlify.app",
-    className: "pinbrushbalovstvo",
-    telegram: {
-      label: "тг\u00A0@Lexusghf",
-      href: "https://t.me/Lexusghf",
-    },
-    description: "тул для рисования на\u00A0телефоне",
-    previewImage: assetPath("/pinbrushbalovstvo.webp"),
-  },
-  {
-    label: "dither-excalibrator",
-    href: "https://dither-excalibrator.netlify.app/",
-    className: "dither-excalibrator",
-    telegram: {
-      label: "тгк\u00A0@bysevostick01",
-      href: "https://t.me/bysevostick01",
-    },
-    description:
-      "нажимаешь randomize и\u00A0получаешь разные степени пикселизации изображения",
-    previewImage: assetPath("/dither-excalibrator.webp"),
-  },
-  {
-    label: "ascii-vision",
-    href: "https://risenve.github.io/ascii-vision/",
-    className: "ascii-vision",
-    telegram: {
-      label: "тгк\u00A0@sargsyanstd",
-      href: "https://t.me/sargsyanstd",
-    },
-    description: "создание фото и\u00A0видео с\u00A0ASCII",
-    previewImage: assetPath("/ascii-vision.webp"),
-  },
-  {
-    label: "kripibykva",
-    href: "https://kripibykva.netlify.app",
-    className: "kripibykva",
-    telegram: {
-      label: "тгк\u00A0@neurokva",
-      href: "https://t.me/neurokva",
-    },
-    description: "обработка фото в\u00A0крипи стилистике",
-    previewImage: assetPath("/kripibykva.webp"),
-  },
-];
-
-type Project = (typeof links)[number];
 
 export default function Home() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -273,6 +192,16 @@ export default function Home() {
           </section>
         </div>
       ) : null}
+
+      <Link className="catalog-switch" href="/sonya">
+        sonya
+      </Link>
+
+      <Script
+        src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"
+        strategy="afterInteractive"
+        type="module"
+      />
     </main>
   );
 }

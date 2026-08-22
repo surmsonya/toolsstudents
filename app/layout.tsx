@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import "./globals.css";
 
 const publicBasePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
@@ -48,11 +47,6 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body>{children}</body>
-      <Script
-        src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"
-        strategy="afterInteractive"
-        type="module"
-      />
     </html>
   );
 }

@@ -1,0 +1,190 @@
+/*
+ * Вторая страница. Фон и модель рисует канвас, типографика лежит поверх
+ * и смешивается с ним через difference — поэтому текст читается на любом
+ * кадре и никогда не совпадает по яркости с тем, что под ним.
+ */
+
+.sonya {
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  min-height: 100svh;
+  overflow: hidden;
+  /* без isolation difference ушёл бы смешиваться с белым body */
+  isolation: isolate;
+}
+
+.sonya-canvas {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 700ms ease;
+}
+
+.sonya-canvas.is-ready {
+  opacity: 1;
+}
+
+.sonya-links {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  mix-blend-mode: difference;
+}
+
+.sonya-item {
+  position: absolute;
+  width: max-content;
+}
+
+.sonya-link {
+  display: block;
+  /* под difference цвет ссылки не должен совпадать с тонами модели: */
+  /* на #8b8175 текст поверх неё гас почти в ноль */
+  color: #b8b0a4;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: clamp(2.25rem, 4.4vw, 5rem);
+  font-weight: 300;
+  line-height: 0.85;
+  letter-spacing: -0.065em;
+  text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: color 160ms ease;
+}
+
+.sonya-link:hover,
+.sonya-link:focus-visible {
+  color: #fff;
+}
+
+.sonya-link:focus-visible {
+  outline: 1px solid #fff;
+  outline-offset: 6px;
+}
+
+.sonya-switch {
+  position: absolute;
+  right: 4vw;
+  bottom: 4dvh;
+  color: #b8b0a4;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: clamp(0.85rem, 1.2vw, 1.05rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: color 160ms ease;
+}
+
+.sonya-switch:hover,
+.sonya-switch:focus-visible {
+  color: #fff;
+}
+
+/*
+ * Позиции повторяют геометрию первой страницы: пока это та же сцена
+ * в другом рендере. Ключи s-01…s-07 переназначаются под настоящий
+ * список ссылок без изменения разметки.
+ */
+.s-01 {
+  top: 8dvh;
+  left: 4vw;
+}
+
+.s-02 {
+  top: 24dvh;
+  right: 4vw;
+}
+
+.s-03 {
+  top: 39dvh;
+  left: 4vw;
+}
+
+.s-04 {
+  top: 58dvh;
+  left: 4vw;
+}
+
+.s-05 {
+  top: 58dvh;
+  right: 4vw;
+}
+
+.s-06 {
+  top: 75dvh;
+  left: 28vw;
+}
+
+.s-07 {
+  top: 7dvh;
+  right: 28vw;
+}
+
+@media (max-width: 700px) {
+  .sonya {
+    --sonya-title-size: clamp(1.6rem, 7.5vw, 2.45rem);
+  }
+
+  .sonya-link {
+    font-size: var(--sonya-title-size);
+    letter-spacing: -0.055em;
+  }
+
+  .sonya-switch {
+    right: 4vw;
+    bottom: 3dvh;
+  }
+
+  .s-01 {
+    top: 6dvh;
+    left: 4vw;
+  }
+
+  .s-07 {
+    top: 16dvh;
+    right: 4vw;
+  }
+
+  .s-02 {
+    top: 27dvh;
+    left: 4vw;
+    right: auto;
+  }
+
+  .s-03 {
+    top: 42dvh;
+    left: 4vw;
+  }
+
+  .s-05 {
+    top: 58dvh;
+    right: 4vw;
+  }
+
+  .s-06 {
+    top: 72dvh;
+    left: 4vw;
+  }
+
+  .s-04 {
+    top: 78dvh;
+    left: 16vw;
+  }
+}
+
+@media (max-height: 620px) and (orientation: landscape) {
+  .sonya {
+    --sonya-title-size: clamp(1.35rem, 3.2vw, 2.15rem);
+  }
+
+  .sonya-link {
+    font-size: var(--sonya-title-size);
+  }
+}
