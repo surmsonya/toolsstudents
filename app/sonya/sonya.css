@@ -157,6 +157,148 @@
 }
 
 /*
+ * Нижний лист: показ превью там, где нет наведения. Копирует лист первой
+ * страницы — тот же серый, тот же радиус, тот же выезд снизу. Живёт вне
+ * difference-слоя и потому остаётся плоским и матовым поверх фона.
+ * На этапе 3 в этой же одежде появится панель камеры.
+ */
+.sonya-sheet-layer {
+  position: fixed;
+  z-index: 4;
+  inset: 0;
+}
+
+.sonya-sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.sonya-sheet {
+  position: absolute;
+  right: 0.75rem;
+  bottom: calc(0.75rem + env(safe-area-inset-bottom));
+  left: 0.75rem;
+  max-height: min(78svh, 44rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.8rem 1rem 1rem;
+  border: 0;
+  border-radius: 1rem;
+  background: #d2d2d2;
+  color: #000;
+  animation: sonya-sheet-in 180ms ease-out;
+}
+
+.sonya-sheet-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.sonya-sheet-header h2 {
+  margin: 0;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: var(--sonya-title-size, 1.9rem);
+  font-weight: 300;
+  line-height: 0.9;
+  letter-spacing: -0.06em;
+  text-transform: uppercase;
+}
+
+.sonya-sheet-close {
+  display: grid;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  margin: -0.45rem -0.45rem 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #000;
+  font:
+    300 2rem/1 "Helvetica Neue",
+    Helvetica,
+    Arial,
+    sans-serif;
+  cursor: pointer;
+}
+
+.sonya-sheet-close:focus-visible {
+  outline: none;
+  opacity: 0.55;
+}
+
+.sonya-sheet-preview {
+  position: relative;
+  width: 100%;
+  margin-top: 0.85rem;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  border: 1px solid #d2d2d2;
+  background: #fff;
+}
+
+.sonya-sheet-preview img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sonya-sheet-preview iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 200%;
+  border: 0;
+  transform: scale(0.5);
+  transform-origin: top left;
+  pointer-events: none;
+}
+
+.sonya-sheet-copy {
+  margin: 0.65rem 0 0;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 300;
+  line-height: 1.25;
+  /* у фифа-бота описание живёт в несколько строк */
+  white-space: pre-line;
+}
+
+.sonya-sheet-action {
+  display: grid;
+  min-height: 48px;
+  place-items: center;
+  margin-top: 0.9rem;
+  border: 0;
+  border-radius: 0.75rem;
+  background: #bababa;
+  color: #000;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 400;
+  line-height: 1;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+@keyframes sonya-sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+/*
  * Позиции повторяют геометрию первой страницы: пока это та же сцена
  * в другом рендере. Ключи s-01…s-07 переназначаются под настоящий
  * список ссылок без изменения разметки.

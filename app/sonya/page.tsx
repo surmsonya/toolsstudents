@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 
-import { assetPath, sonyaLinks } from "../catalog-data";
+import { assetPath, sonyaLinks, type SonyaLink } from "../catalog-data";
 import { PALETTE } from "./shaders";
 import "./sonya.css";
 
@@ -11,9 +11,19 @@ import "./sonya.css";
 import type { SceneHandle } from "./scene";
 import type { PointerTracker } from "./tracking";
 
+/**
+ * Там, где наведения нет, превью показывается нижним листом по нажатию —
+ * ровно тот же жест, что на первой странице. Условие то же, по которому
+ * прячется ховерное превью, чтобы между ними не осталось щели.
+ */
+const NO_HOVER_QUERY = "(hover: none)";
+
 export default function SonyaPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isReady, setIsReady] = useState(false);
+  const [sheetLink, setSheetLink] = useState<SonyaLink | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const lastTriggerRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -57,6 +67,42 @@ export default function SonyaPage() {
     };
   }, []);
 
+  const closeSheet = () => {
+    setSheetLink(null);
+    window.requestAnimationFrame(() => lastTriggerRef.current?.focus());
+  };
+
+  const handleLinkClick = (
+    event: MouseEvent<HTMLAnchorElement>,
+    link: SonyaLink,
+  ) => {
+    if (!window.matchMedia(NO_HOVER_QUERY).matches) {
+      return;
+    }
+
+    event.preventDefault();
+    lastTriggerRef.current = event.currentTarget;
+    setSheetLink(link);
+  };
+
+  useEffect(() => {
+    if (!sheetLink) {
+      return;
+    }
+
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setSheetLink(null);
+        window.requestAnimationFrame(() => lastTriggerRef.current?.focus());
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [sheetLink]);
+
   return (
     <main
       aria-label="sonya"
@@ -75,6 +121,7 @@ export default function SonyaPage() {
             <a
               className="sonya-link"
               href={link.href}
+              onClick={(event) => handleLinkClick(event, link)}
               rel="noreferrer"
               target="_blank"
             >
@@ -116,6 +163,75 @@ export default function SonyaPage() {
           пин тулз
         </Link>
       </nav>
+
+      {/*
+        Лист рендерится вне слоя ссылок: там difference, и серая подложка
+        ушла бы в инверсию вместе с содержимым. Здесь он остаётся плоским
+        и матовым поверх кипящего фона — тем же куском первой страницы,
+        каким на этапе 3 станет панель камеры.
+      */}
+      {sheetLink ? (
+        <div className="sonya-sheet-layer">
+          <button
+            aria-label="закрыть превью"
+            className="sonya-sheet-backdrop"
+            onClick={closeSheet}
+            tabIndex={-1}
+            type="button"
+          />
+
+          <section
+            aria-labelledby="sonya-sheet-title"
+            aria-modal="true"
+            className="sonya-sheet"
+            role="dialog"
+          >
+            <header className="sonya-sheet-header">
+              <h2 id="sonya-sheet-title">{sheetLink.label}</h2>
+              <button
+                aria-label="закрыть превью"
+                className="sonya-sheet-close"
+                onClick={closeSheet}
+                ref={closeButtonRef}
+                type="button"
+              >
+                ×
+              </button>
+            </header>
+
+            <div className="sonya-sheet-preview">
+              {sheetLink.previewImage ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  alt=""
+                  aria-hidden="true"
+                  decoding="async"
+                  src={sheetLink.previewImage}
+                />
+              ) : (
+                <iframe
+                  aria-hidden="true"
+                  loading="lazy"
+                  src={sheetLink.href}
+                  tabIndex={-1}
+                  title={`Превью ${sheetLink.label}`}
+                />
+              )}
+            </div>
+
+            <p className="sonya-sheet-copy">{sheetLink.description}</p>
+
+            <a
+              className="sonya-sheet-action"
+              href={sheetLink.href}
+              rel="noreferrer"
+              target="_blank"
+            >
+              открыть
+            </a>
+          </section>
+        </div>
+      ) : null}
     </main>
   );
 }

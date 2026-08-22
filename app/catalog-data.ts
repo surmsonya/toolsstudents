@@ -121,7 +121,7 @@ export const sonyaLinks: SonyaLink[] = [
     className: "s-01",
     description:
       "Коллаборация преподавательниц Щелочи! Соня-нейронки, Зоя-иллюстрация! А вместе-взрыв приколов и\u00A0арта",
-    previewImage: null,
+    previewImage: assetPath("/sonyazoya.jpg"),
   },
   {
     label: "linocut",
@@ -129,7 +129,7 @@ export const sonyaLinks: SonyaLink[] = [
     className: "s-02",
     description:
       "Веб инструмент, созданный в\u00A0рамках апрельской айдентики телеграм канала Щелочи",
-    previewImage: null,
+    previewImage: assetPath("/linocut.jpg"),
   },
   {
     label: "Alkali-neuro",
@@ -145,7 +145,7 @@ export const sonyaLinks: SonyaLink[] = [
     className: "s-04",
     description:
       "Фигма плагин, культивирующий препринт эстетику. В\u00A0cmyk не переводит, dpi не повышает, но метки накладывает элегантнейше и настроен очень удобно!",
-    previewImage: assetPath("/fake-print.webp"),
+    previewImage: assetPath("/fake-print.jpg"),
   },
   {
     label: "Proof-marks",
@@ -153,7 +153,7 @@ export const sonyaLinks: SonyaLink[] = [
     className: "s-05",
     description:
       "плагин для\u00A0фигмы, который расставляет непечатаемые символы в\u00A0тексте и позволяет их кастомизировать!",
-    previewImage: assetPath("/proof-marks.webp"),
+    previewImage: assetPath("/proof-marks.png"),
   },
   {
     label: "Fifa-sh-bot",
@@ -161,13 +161,13 @@ export const sonyaLinks: SonyaLink[] = [
     className: "s-06",
     description:
       "⚽️⚽️⚽️⚽️⚽️\nщелочные фифа карточки на\u00A0сезон чм2026\n\nСТАНЬ УЧАСТНИКОМ Щ КОМАНДЫ С ФИФА Щ БОТ",
-    previewImage: assetPath("/fifa-sh-bot.webp"),
+    previewImage: assetPath("/fifa-sh-bot.jpg"),
   },
   {
     label: "Pin-bot",
     href: "https://t.me/pin_sholotch_bot",
     className: "s-07",
     description: "обучающий бот-тамагочи для\u00A0студентов курса ПИН",
-    previewImage: assetPath("/pin-bot.webp"),
+    previewImage: assetPath("/pin-bot.jpg"),
   },
 ];
