@@ -99,36 +99,75 @@ export type SonyaLink = {
   label: string;
   href: string;
   className: string;
+  description: string;
+  /**
+   * Скриншот для тех адресов, которые не встраиваются в iframe:
+   * фигма отдаёт 403, t.me — frame-ancestors только для web.telegram.org.
+   * null означает живое окно с сайтом.
+   */
+  previewImage: string | null;
 };
 
 /**
- * ПЛЕЙСХОЛДЕР. Ждём настоящий список ссылок для /sonya.
- * Пока стоят подписи с первой страницы — они дают честные типографические
- * метрики, чтобы оценить раскладку. Позиции задаются классами s-01…s-07
- * в app/sonya/sonya.css, поэтому замена списка не трогает разметку.
+ * Позиции задаются классами s-01…s-07 в app/sonya/sonya.css,
+ * поэтому порядок в массиве и есть раскладка на экране.
+ * Неразрывные пробелы записаны escape-последовательностями — так их
+ * видно в исходнике, и они переживают правки.
  */
 export const sonyaLinks: SonyaLink[] = [
   {
-    label: "sweet-crepe",
-    href: "https://sweet-crepe-eab810.netlify.app",
+    label: "sonyazoya",
+    href: "https://zoyasonya.vercel.app",
     className: "s-01",
+    description:
+      "Коллаборация преподавательниц Щелочи! Соня-нейронки, Зоя-иллюстрация! А вместе-взрыв приколов и\u00A0арта",
+    previewImage: null,
   },
-  { label: "pinmusepad", href: "https://pinmusepad.netlify.app/", className: "s-02" },
   {
-    label: "SCANNER-STUDIO",
-    href: "https://irina-mov.github.io/scannerstudio_designpatch/",
+    label: "linocut",
+    href: "https://apriltool.netlify.app",
+    className: "s-02",
+    description:
+      "Веб инструмент, созданный в\u00A0рамках апрельской айдентики телеграм канала Щелочи",
+    previewImage: null,
+  },
+  {
+    label: "Alkali-neuro",
+    href: "https://aiteam-i9s6-nine.vercel.app",
     className: "s-03",
+    description:
+      "чем вдохновляются артовые ребята вокруг нас? задаваясь этим вопросом, я навайбкодила сайт с\u00A0рефами от\u00A0участников команды НЕЙРО Щ (бонус: к\u00A0рефам приложены коды мудбордов для\u00A0миджа 👅)",
+    previewImage: null,
   },
   {
-    label: "pinbrushbalovstvo",
-    href: "https://pinbrushbalovstvo.netlify.app",
+    label: "Fake-print",
+    href: "https://www.figma.com/community/plugin/1667255153798092716/fake-print",
     className: "s-04",
+    description:
+      "Фигма плагин, культивирующий препринт эстетику. В\u00A0cmyk не переводит, dpi не повышает, но метки накладывает элегантнейше и настроен очень удобно!",
+    previewImage: assetPath("/fake-print.webp"),
   },
   {
-    label: "dither-excalibrator",
-    href: "https://dither-excalibrator.netlify.app/",
+    label: "Proof-marks",
+    href: "https://www.figma.com/community/plugin/1666113501156385382/proof-marks",
     className: "s-05",
+    description:
+      "плагин для\u00A0фигмы, который расставляет непечатаемые символы в\u00A0тексте и позволяет их кастомизировать!",
+    previewImage: assetPath("/proof-marks.webp"),
   },
-  { label: "ascii-vision", href: "https://risenve.github.io/ascii-vision/", className: "s-06" },
-  { label: "kripibykva", href: "https://kripibykva.netlify.app", className: "s-07" },
+  {
+    label: "Fifa-sh-bot",
+    href: "https://t.me/fifa_sh_bot",
+    className: "s-06",
+    description:
+      "⚽️⚽️⚽️⚽️⚽️\nщелочные фифа карточки на\u00A0сезон чм2026\n\nСТАНЬ УЧАСТНИКОМ Щ КОМАНДЫ С ФИФА Щ БОТ",
+    previewImage: assetPath("/fifa-sh-bot.webp"),
+  },
+  {
+    label: "Pin-bot",
+    href: "https://t.me/pin_sholotch_bot",
+    className: "s-07",
+    description: "обучающий бот-тамагочи для\u00A0студентов курса ПИН",
+    previewImage: assetPath("/pin-bot.webp"),
+  },
 ];

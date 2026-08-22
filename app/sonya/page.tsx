@@ -80,6 +80,35 @@ export default function SonyaPage() {
             >
               {link.label}
             </a>
+
+            {/*
+              Превью лежит внутри пункта, а не отдельным слоем: так оно всегда
+              под своим заголовком и по его левому краю, а раскладка правится
+              позициями s-01…s-07, а не пересчётом в JS. Показ по наведению —
+              чистым CSS, как на первой странице.
+            */}
+            <div aria-hidden="true" className="sonya-preview">
+              <div className="sonya-preview-window">
+                {link.previewImage ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    alt=""
+                    className="sonya-preview-image"
+                    decoding="async"
+                    loading="lazy"
+                    src={link.previewImage}
+                  />
+                ) : (
+                  <iframe
+                    loading="lazy"
+                    src={link.href}
+                    tabIndex={-1}
+                    title={`Превью ${link.label}`}
+                  />
+                )}
+              </div>
+              <p>{link.description}</p>
+            </div>
           </div>
         ))}
 
