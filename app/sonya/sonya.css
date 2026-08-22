@@ -150,7 +150,9 @@
 
 .sonya-preview p {
   margin: 0.4rem 0 0;
-  color: #b8b0a4;
+  /* описание всегда белое, в отличие от заголовка, который светлеет только
+     под наведением */
+  color: #fff;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 1rem;
   font-weight: 300;
