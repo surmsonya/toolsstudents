@@ -254,10 +254,15 @@ export default function SonyaPage() {
           {cameraTriggerLabel}
         </button>
 
-        <Link className="sonya-switch" href="/">
-          пин тулз
-        </Link>
       </nav>
+
+      {/*
+        Переход на первую страницу — вне difference-слоя: серая плашка
+        должна остаться плоской и матовой, как лист превью.
+      */}
+      <Link className="sonya-switch" href="/">
+        пин тулз
+      </Link>
 
       {/*
         Лист и панель камеры рендерятся вне слоя ссылок: там difference,

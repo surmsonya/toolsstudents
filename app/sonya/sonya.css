@@ -67,24 +67,39 @@
   outline-offset: 6px;
 }
 
+/*
+ * Переход на первую страницу: серая плашка того же тона и радиуса, что у
+ * листа превью. Лежит вне difference-слоя, иначе подложка инвертировалась
+ * бы вместе с фоном.
+ */
 .sonya-switch {
   position: absolute;
+  z-index: 3;
   right: 4vw;
   bottom: 4dvh;
-  color: #b8b0a4;
+  padding: 0.45rem 0.85rem;
+  border-radius: 0.75rem;
+  background: #d2d2d2;
+  color: #000;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: clamp(0.85rem, 1.2vw, 1.05rem);
   font-weight: 300;
+  line-height: 1;
   letter-spacing: -0.02em;
   text-decoration: none;
   text-transform: uppercase;
   white-space: nowrap;
-  transition: color 160ms ease;
+  transition: background-color 160ms ease;
 }
 
 .sonya-switch:hover,
 .sonya-switch:focus-visible {
-  color: #fff;
+  background: #bababa;
+}
+
+.sonya-switch:focus-visible {
+  outline: 1px solid #fff;
+  outline-offset: 4px;
 }
 
 /*

@@ -477,25 +477,30 @@ body {
   }
 }
 
+/* переход на вторую страницу: та же серая плашка, что у листа превью */
 .catalog-switch {
   position: absolute;
   z-index: 4;
   right: 4vw;
   bottom: 4dvh;
-  color: #d2d2d2;
+  padding: 0.45rem 0.85rem;
+  border-radius: 0.75rem;
+  background: #d2d2d2;
+  color: #000;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: clamp(0.85rem, 1.2vw, 1.05rem);
   font-weight: 300;
+  line-height: 1;
   letter-spacing: -0.02em;
   text-decoration: none;
   text-transform: uppercase;
   white-space: nowrap;
-  transition: color 160ms ease;
+  transition: background-color 160ms ease;
 }
 
 .catalog-switch:hover,
 .catalog-switch:focus-visible {
-  color: #000;
+  background: #bababa;
 }
 
 .catalog-switch:focus-visible {
