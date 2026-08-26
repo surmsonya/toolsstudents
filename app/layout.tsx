@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 const publicBasePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-const siteUrl = "https://surmsonya.github.io/toolsstudents";
+const siteUrl = "https://alkali.world";
 const socialImageUrl = `${siteUrl}/og.png`;
 const title = "ПИН тулз";
 const description = "коллекция работ студентов курса ПИН школы @sholotch";
