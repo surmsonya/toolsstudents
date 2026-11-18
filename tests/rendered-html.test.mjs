@@ -31,7 +31,8 @@ test("server-renders the one-screen PIN catalog", async () => {
   const html = await response.text();
   assert.match(html, /<title>ПИН тулз<\/title>/i);
   assert.match(html, /<model-viewer[^>]*src="\/model\.glb"/i);
-  assert.match(html, /<model-viewer[^>]*poster="\/model-poster\.webp"/i);
+  assert.doesNotMatch(html, /<model-viewer[^>]*poster=/i);
+  assert.match(html, /class="pin-loader"/);
   assert.match(html, /sweet-crepe/);
   assert.match(html, /pinmusepad/);
   assert.match(html, /SCANNER-STUDIO/);
@@ -79,7 +80,8 @@ test("keeps the catalog viewport-bound and model-ready", async () => {
   assert.match(page, /auto-rotate/);
   assert.match(page, /camera-controls/);
   assert.match(page, /assetPath\("\/model\.glb"\)/);
-  assert.match(page, /assetPath\("\/model-poster\.webp"\)/);
+  assert.doesNotMatch(page, /model-poster/);
+  assert.match(page, /<PinLoader \/>/);
   assert.match(page, /@google\/model-viewer/);
   assert.doesNotMatch(layout, /@google\/model-viewer/);
   assert.doesNotMatch(page, /SkeletonPreview/);

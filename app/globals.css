@@ -513,3 +513,96 @@ body {
     bottom: 3dvh;
   }
 }
+
+/*
+ * Экран загрузки с пин-кодом. Лежит поверх всего каталога, пока не
+ * загрузится модель. Цвет и шрифт — как у названий тулов.
+ */
+.pin-loader {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  opacity: 1;
+  transition: opacity 700ms ease;
+  /* Страховка, если JS не запустился: экран сам уйдёт через 15 с. */
+  animation: pin-loader-failsafe 0s linear 15s forwards;
+}
+
+.pin-loader.is-leaving {
+  opacity: 0;
+  pointer-events: none;
+}
+
+html[data-pin-seen] .pin-loader {
+  display: none;
+}
+
+.pin-loader-code {
+  display: flex;
+  gap: 0.18em;
+  color: #d2d2d2;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: clamp(2.25rem, 4.4vw, 5rem);
+  font-weight: 300;
+  line-height: 1;
+}
+
+.pin-loader-slot {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 0.72em;
+  height: 1.1em;
+}
+
+.pin-loader-digit,
+.pin-loader-dot {
+  grid-area: 1 / 1;
+  transition:
+    opacity 180ms ease,
+    transform 220ms ease;
+}
+
+.pin-loader-digit {
+  opacity: 0;
+  transform: translateY(0.12em);
+}
+
+.pin-loader-dot {
+  width: 0.26em;
+  height: 0.26em;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0;
+  transform: scale(0.4);
+}
+
+.pin-loader-slot.is-typed .pin-loader-digit {
+  opacity: 1;
+  transform: none;
+}
+
+.pin-loader-slot.is-masked .pin-loader-dot {
+  opacity: 1;
+  transform: none;
+}
+
+/*
+ * Только visibility: анимация на opacity перебила бы transition затухания.
+ */
+@keyframes pin-loader-failsafe {
+  to {
+    visibility: hidden;
+  }
+}
+
+/* Затухание экрана оставляем: это смена прозрачности, а не движение. */
+@media (prefers-reduced-motion: reduce) {
+  .pin-loader-digit,
+  .pin-loader-dot {
+    transition: none;
+  }
+}

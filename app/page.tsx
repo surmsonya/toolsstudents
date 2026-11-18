@@ -5,6 +5,7 @@ import Script from "next/script";
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 
 import { assetPath, links, type Project } from "./catalog-data";
+import { PinLoader, pinLoaderSeenScript } from "./pin-loader";
 
 /*
  * Лист заменяет ховерное превью и при сужении окна, и на тач-устройстве
@@ -59,7 +60,6 @@ export default function Home() {
       <model-viewer
         class="catalog-model"
         src={assetPath("/model.glb")}
-        poster={assetPath("/model-poster.webp")}
         alt="Interactive 3D model"
         auto-rotate
         auto-rotate-delay="0"
@@ -207,6 +207,9 @@ export default function Home() {
         strategy="afterInteractive"
         type="module"
       />
+
+      <script dangerouslySetInnerHTML={{ __html: pinLoaderSeenScript }} />
+      <PinLoader />
     </main>
   );
 }

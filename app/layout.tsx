@@ -45,7 +45,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru">
+    // data-pin-seen ставит скрипт экрана загрузки до гидрации.
+    <html lang="ru" suppressHydrationWarning>
       <body>{children}</body>
     </html>
   );
