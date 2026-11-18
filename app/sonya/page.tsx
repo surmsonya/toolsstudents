@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 
 import { assetPath, sonyaLinks, type SonyaLink } from "../catalog-data";
+import { PageSwitch } from "../page-switch";
 import { createCameraController, type CameraStatus } from "./camera";
 import { PALETTE } from "./shaders";
 import "./sonya.css";
@@ -257,12 +257,10 @@ export default function SonyaPage() {
       </nav>
 
       {/*
-        Переход на первую страницу — вне difference-слоя: серая плашка
+        Переходы между страницами — вне difference-слоя: серая плашка
         должна остаться плоской и матовой, как лист превью.
       */}
-      <Link className="sonya-switch" href="/">
-        пин тулз
-      </Link>
+      <PageSwitch current="sonya" />
 
       {/*
         Лист и панель камеры рендерятся вне слоя ссылок: там difference,

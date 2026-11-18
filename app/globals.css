@@ -477,15 +477,26 @@ body {
   }
 }
 
-/* переход на вторую страницу: та же серая плашка, что у листа превью */
-.catalog-switch {
+/*
+ * Переходы между страницами: одна серая плашка того же тона и радиуса,
+ * что у листа превью, внутри — ссылки на две другие страницы.
+ * Общая для всех страниц, поэтому лежит здесь, а не в css маршрута.
+ */
+.page-switch {
   position: absolute;
   z-index: 4;
   right: 4vw;
   bottom: 4dvh;
-  padding: 0.45rem 0.85rem;
+  display: flex;
+  gap: 0.15rem;
+  padding: 0.2rem;
   border-radius: 0.75rem;
   background: #d2d2d2;
+}
+
+.page-switch-link {
+  padding: 0.25rem 0.65rem;
+  border-radius: 0.55rem;
   color: #000;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: clamp(0.85rem, 1.2vw, 1.05rem);
@@ -498,18 +509,17 @@ body {
   transition: background-color 160ms ease;
 }
 
-.catalog-switch:hover,
-.catalog-switch:focus-visible {
+.page-switch-link:hover,
+.page-switch-link:focus-visible {
   background: #bababa;
 }
 
-.catalog-switch:focus-visible {
-  outline: 1px solid #000;
-  outline-offset: 6px;
+.page-switch-link:focus-visible {
+  outline: none;
 }
 
 @media (max-width: 700px) {
-  .catalog-switch {
+  .page-switch {
     bottom: 3dvh;
   }
 }

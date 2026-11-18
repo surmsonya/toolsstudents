@@ -1,0 +1,97 @@
+/*
+ * Главная (ПИН2). Всё устройство — из app/sonya/sonya.css, здесь только
+ * отличия: сплошной чёрный фон и раскладка шести ссылок p-01…p-06.
+ */
+
+.pin2 {
+  background: #000;
+}
+
+/* имя автора над описанием, тем же белым, отдельной строкой */
+.pin2-telegram {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.pin2-sheet-telegram {
+  color: #000;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.pin2 .sonya-sheet-copy p {
+  margin: 0.3rem 0 0;
+}
+
+.p-01 {
+  top: 5dvh;
+  left: 4vw;
+}
+
+.p-02 {
+  top: 9dvh;
+  right: 4vw;
+}
+
+.p-03 {
+  top: 40dvh;
+  left: 4vw;
+}
+
+.p-04 {
+  top: 36dvh;
+  right: 4vw;
+}
+
+/* нижние блоки поднимаются, чтобы превью не уезжало под край экрана */
+.p-05 {
+  top: min(68dvh, 100dvh - 21.5rem);
+  left: 12vw;
+}
+
+.p-06 {
+  top: min(70dvh, 100dvh - 19rem);
+  right: 22vw;
+}
+
+@media (max-width: 700px) {
+  .p-01 {
+    top: 6dvh;
+    left: 4vw;
+  }
+
+  .p-02 {
+    top: 18dvh;
+    right: 4vw;
+  }
+
+  .p-03 {
+    top: 32dvh;
+    left: 4vw;
+  }
+
+  .p-04 {
+    top: 48dvh;
+    right: 4vw;
+  }
+
+  .p-05 {
+    top: 62dvh;
+    left: 4vw;
+  }
+
+  .p-06 {
+    top: 76dvh;
+    right: 4vw;
+  }
+}
+
+@media (max-height: 620px) and (orientation: landscape) {
+  .p-05,
+  .p-06 {
+    top: 68dvh;
+  }
+}

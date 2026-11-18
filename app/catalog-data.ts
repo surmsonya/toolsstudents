@@ -171,3 +171,78 @@ export const sonyaLinks: SonyaLink[] = [
     previewImage: assetPath("/pin-bot.jpg"),
   },
 ];
+
+/**
+ * Главная (ПИН2). Позиции задаются классами p-01…p-06 в app/pin2.css,
+ * порядок в массиве и есть раскладка на экране. Превью — живые окна
+ * с сайтами, пока нет скриншотов.
+ */
+export const pin2Links: Project[] = [
+  {
+    label: "PIXELGRID",
+    href: "https://pixelgrids.netlify.app/",
+    className: "p-01",
+    telegram: {
+      label: "аля ф @aliafayz",
+      href: "https://t.me/aliafayz",
+    },
+    description: "пиксельные сетки с заданными палитрами",
+    previewImage: null,
+  },
+  {
+    label: "halftone-relief",
+    href: "https://alyonazh.github.io/halftone-relief/",
+    className: "p-02",
+    telegram: {
+      label: "Алена @alyona_zhogova",
+      href: "https://t.me/alyona_zhogova",
+    },
+    description: "аудиореактивная графика",
+    previewImage: null,
+  },
+  {
+    label: "cut/shift",
+    href: "https://beloe-cyxoe.github.io/cutshift/",
+    className: "p-03",
+    telegram: {
+      label: "Ирина @beloe_syxoe",
+      href: "https://t.me/beloe_syxoe",
+    },
+    description: "коллажирование фотографий",
+    previewImage: null,
+  },
+  {
+    label: "Sabatier",
+    href: "https://varvarakomarova.github.io/sabatier-lab",
+    className: "p-04",
+    telegram: {
+      label: "Варвара @vakomarova",
+      href: "https://t.me/vakomarova",
+    },
+    description:
+      "пресеты с градиентной обработкой, создание обоев на телефон",
+    previewImage: null,
+  },
+  {
+    label: "HUD / GENERATOR",
+    href: "https://p4rzifalus.github.io/hud-dossier/",
+    className: "p-05",
+    telegram: {
+      label: "Паша @p4rzifal",
+      href: "https://t.me/p4rzifal",
+    },
+    description: "фото, видео, камера\nобработка в технической эстетике",
+    previewImage: null,
+  },
+  {
+    label: "cyber-sigil",
+    href: "https://p4rzifalus.github.io/03-cyber-sigil/",
+    className: "p-06",
+    telegram: {
+      label: "Паша @p4rzifal",
+      href: "https://t.me/p4rzifal",
+    },
+    description: "векторная графика из кода",
+    previewImage: null,
+  },
+];

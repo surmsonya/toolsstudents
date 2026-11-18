@@ -23,13 +23,33 @@ async function render(path = "/") {
   );
 }
 
-test("server-renders the one-screen PIN catalog", async () => {
+test("server-renders PIN2 as the main page", async () => {
   const response = await render();
+  assert.equal(response.status, 200);
+
+  const html = await response.text();
+  assert.match(html, /<title>ПИН2<\/title>/i);
+  assert.match(html, /class="sonya pin2"/);
+  assert.match(html, /class="sonya-canvas"/);
+  assert.match(html, /PIXELGRID/);
+  assert.match(html, /halftone-relief/);
+  assert.match(html, /cut\/shift/);
+  assert.match(html, /Sabatier/);
+  assert.match(html, /HUD \/ GENERATOR/);
+  assert.match(html, /cyber-sigil/);
+  assert.match(html, /href="https:\/\/t\.me\/p4rzifal"/);
+  assert.match(html, /href="\/sonya"[^>]*>sonya</);
+  assert.match(html, /href="\/pin1"[^>]*>пин1</);
+  assert.doesNotMatch(html, /<model-viewer/i);
+});
+
+test("server-renders the one-screen PIN1 catalog", async () => {
+  const response = await render("/pin1");
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, /<title>ПИН тулз<\/title>/i);
+  assert.match(html, /<title>ПИН1<\/title>/i);
   assert.match(html, /<model-viewer[^>]*src="\/model\.glb"/i);
   assert.doesNotMatch(html, /<model-viewer[^>]*poster=/i);
   assert.match(html, /class="pin-loader"/);
@@ -47,7 +67,7 @@ test("server-renders the one-screen PIN catalog", async () => {
 test("keeps the catalog viewport-bound and model-ready", async () => {
   const [css, page, layout, data] = await Promise.all([
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
-    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/pin1/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/catalog-data.ts", import.meta.url), "utf8"),
   ]);

@@ -9,7 +9,8 @@ const description = "коллекция работ студентов курса
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title,
+  // вкладка главной; название коллекции остаётся в превью для соцсетей
+  title: "ПИН2",
   description,
   icons: {
     icon: `${publicBasePath}/favicon.svg`,

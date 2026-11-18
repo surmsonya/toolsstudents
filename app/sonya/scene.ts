@@ -47,6 +47,11 @@ type SceneOptions = {
   pointer: PointerSignal;
   onReady?: () => void;
   onError?: (error: unknown) => void;
+  /**
+   * «field» — кипящий фон в три тона палитры, как на /sonya.
+   * «black» — сплошной чёрный без фоновых проходов (главная, ПИН2).
+   */
+  background?: "field" | "black";
 };
 
 export type SceneHandle = {
@@ -94,6 +99,7 @@ const CAMERA_MIX_EPSILON = 0.002;
 
 export function createScene(options: SceneOptions): SceneHandle {
   const { canvas, modelUrl, pointer, onReady, onError } = options;
+  const useField = (options.background ?? "field") === "field";
 
   // Палитра задана в sRGB «на глаз» и должна доехать до экрана без пересчёта:
   // сцена не физическая, конвертации только увели бы тона от заданных.
@@ -101,7 +107,7 @@ export function createScene(options: SceneOptions): SceneHandle {
 
   const renderer = new WebGLRenderer({ canvas, antialias: true, alpha: false });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-  renderer.setClearColor(PALETTE.shadow, 1);
+  renderer.setClearColor(useField ? PALETTE.shadow : "#000000", 1);
   // фон рисуется первым и кладёт цвет во весь кадр, модель — поверх него
   renderer.autoClear = false;
 
@@ -460,12 +466,16 @@ export function createScene(options: SceneOptions): SceneHandle {
     camera.aspect = width / height;
     fitCamera();
     camera.updateProjectionMatrix();
-    resizeField();
+    if (useField) {
+      resizeField();
+    }
   };
 
   const render = () => {
     renderer.clear();
-    renderer.render(compositeScene, quadCamera);
+    if (useField) {
+      renderer.render(compositeScene, quadCamera);
+    }
     renderer.render(scene, camera);
   };
 
@@ -504,7 +514,9 @@ export function createScene(options: SceneOptions): SceneHandle {
         }
       }
 
-      accumulate(step);
+      if (useField) {
+        accumulate(step);
+      }
     }
 
     const targetYaw = pointer.x * MAX_YAW;

@@ -1,44 +1,93 @@
 "use client";
 
-import Link from "next/link";
-import Script from "next/script";
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 
-import { assetPath, links, type Project } from "./catalog-data";
-import { PinLoader, pinLoaderSeenScript } from "./pin-loader";
+import { assetPath, pin2Links, type Project } from "./catalog-data";
+import { PageSwitch } from "./page-switch";
+// Визуал главной взят со страницы sonya: та же сцена, та же типографика
+// в difference-слое, тот же лист превью. Отличия — в pin2.css.
+import "./sonya/sonya.css";
+import "./pin2.css";
 
-/*
- * Лист заменяет ховерное превью и при сужении окна, и на тач-устройстве
- * любой ширины. Условие должно совпадать с тем, по которому в globals.css
- * прячется .catalog-preview, иначе между ними останется щель.
+// только типы: сами модули приходят динамическим импортом ниже
+import type { SceneHandle } from "./sonya/scene";
+import type { PointerTracker } from "./sonya/tracking";
+
+/**
+ * Где превью не показать наведением, оно показывается нижним листом
+ * по нажатию. Условие то же, по которому прячется ховерное превью.
  */
-const MOBILE_PREVIEW_QUERY = "(max-width: 700px), (hover: none)";
+const SHEET_QUERY = "(max-width: 700px), (hover: none)";
 
-export default function Home() {
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+export default function Pin2Page() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [isReady, setIsReady] = useState(false);
+  const [sheetLink, setSheetLink] = useState<Project | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const lastTriggerRef = useRef<HTMLAnchorElement>(null);
 
-  const closeMobilePreview = () => {
-    setSelectedProject(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) {
+      return;
+    }
+
+    let cancelled = false;
+    let scene: SceneHandle | null = null;
+    let tracker: PointerTracker | null = null;
+
+    void (async () => {
+      const [{ createScene }, { createPointerTracker }] = await Promise.all([
+        import("./sonya/scene"),
+        import("./sonya/tracking"),
+      ]);
+
+      if (cancelled) {
+        return;
+      }
+
+      tracker = createPointerTracker();
+
+      scene = createScene({
+        canvas,
+        modelUrl: assetPath("/model.glb"),
+        pointer: tracker.signal,
+        background: "black",
+        onReady: () => setIsReady(true),
+        onError: (error) => {
+          // страница остаётся рабочей: ссылки на месте, фон чёрный
+          console.error("сцена главной не загрузилась", error);
+        },
+      });
+    })();
+
+    return () => {
+      cancelled = true;
+      scene?.dispose();
+      tracker?.dispose();
+    };
+  }, []);
+
+  const closeSheet = () => {
+    setSheetLink(null);
     window.requestAnimationFrame(() => lastTriggerRef.current?.focus());
   };
 
-  const handleProjectClick = (
+  const handleLinkClick = (
     event: MouseEvent<HTMLAnchorElement>,
-    project: Project,
+    link: Project,
   ) => {
-    if (!window.matchMedia(MOBILE_PREVIEW_QUERY).matches) {
+    if (!window.matchMedia(SHEET_QUERY).matches) {
       return;
     }
 
     event.preventDefault();
     lastTriggerRef.current = event.currentTarget;
-    setSelectedProject(project);
+    setSheetLink(link);
   };
 
   useEffect(() => {
-    if (!selectedProject) {
+    if (!sheetLink) {
       return;
     }
 
@@ -46,63 +95,49 @@ export default function Home() {
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setSelectedProject(null);
+        setSheetLink(null);
         window.requestAnimationFrame(() => lastTriggerRef.current?.focus());
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedProject]);
+  }, [sheetLink]);
 
   return (
-    <main className="catalog" aria-label="PIN tools catalog">
-      <model-viewer
-        class="catalog-model"
-        src={assetPath("/model.glb")}
-        alt="Interactive 3D model"
-        auto-rotate
-        auto-rotate-delay="0"
-        rotation-per-second="8deg"
-        camera-controls
-        interaction-prompt="none"
-        shadow-intensity="0"
-        loading="eager"
+    <main aria-label="ПИН2" className="sonya pin2">
+      <canvas
+        aria-hidden="true"
+        className={`sonya-canvas${isReady ? " is-ready" : ""}`}
+        ref={canvasRef}
       />
 
-      <nav className="catalog-links" aria-label="Project links">
-        {links.map((link) => (
-          <div
-            className={`catalog-item ${link.className}${
-              selectedProject?.href === link.href ? " is-selected" : ""
-            }`}
-            key={link.label}
-          >
+      <nav className="sonya-links" aria-label="Ссылки">
+        {pin2Links.map((link) => (
+          <div className={`sonya-item ${link.className}`} key={link.label}>
             <a
-              className="catalog-link"
+              className="sonya-link"
               href={link.href}
-              onClick={(event) => handleProjectClick(event, link)}
+              onClick={(event) => handleLinkClick(event, link)}
               rel="noreferrer"
               target="_blank"
             >
               {link.label}
             </a>
 
-            <div className="catalog-preview">
-              <div className="catalog-preview-window">
+            <div className="sonya-preview">
+              <div aria-hidden="true" className="sonya-preview-window">
                 {link.previewImage ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     alt=""
-                    aria-hidden="true"
-                    className="catalog-preview-image"
+                    className="sonya-preview-image"
                     decoding="async"
                     loading="lazy"
                     src={link.previewImage}
                   />
                 ) : (
                   <iframe
-                    aria-hidden="true"
                     loading="lazy"
                     src={link.href}
                     tabIndex={-1}
@@ -112,42 +147,44 @@ export default function Home() {
               </div>
               <p>
                 <a
-                  className="catalog-telegram"
+                  className="pin2-telegram"
                   href={link.telegram.href}
                   rel="noreferrer"
                   target="_blank"
                 >
                   {link.telegram.label}
                 </a>
-                <span>{link.description}</span>
+                {link.description}
               </p>
             </div>
           </div>
         ))}
       </nav>
 
-      {selectedProject ? (
-        <div className="mobile-sheet-layer">
+      <PageSwitch current="pin2" />
+
+      {sheetLink ? (
+        <div className="sonya-sheet-layer">
           <button
             aria-label="закрыть превью"
-            className="mobile-sheet-backdrop"
-            onClick={closeMobilePreview}
+            className="sonya-sheet-backdrop"
+            onClick={closeSheet}
             tabIndex={-1}
             type="button"
           />
 
           <section
-            aria-labelledby="mobile-sheet-title"
+            aria-labelledby="pin2-sheet-title"
             aria-modal="true"
-            className="mobile-sheet"
+            className="sonya-sheet"
             role="dialog"
           >
-            <header className="mobile-sheet-header">
-              <h2 id="mobile-sheet-title">{selectedProject.label}</h2>
+            <header className="sonya-sheet-header">
+              <h2 id="pin2-sheet-title">{sheetLink.label}</h2>
               <button
                 aria-label="закрыть превью"
-                className="mobile-sheet-close"
-                onClick={closeMobilePreview}
+                className="sonya-sheet-close"
+                onClick={closeSheet}
                 ref={closeButtonRef}
                 type="button"
               >
@@ -155,40 +192,41 @@ export default function Home() {
               </button>
             </header>
 
-            <div className="mobile-sheet-preview">
-              {selectedProject.previewImage ? (
+            <div className="sonya-sheet-preview">
+              {sheetLink.previewImage ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   alt=""
                   aria-hidden="true"
                   decoding="async"
-                  src={selectedProject.previewImage}
+                  src={sheetLink.previewImage}
                 />
               ) : (
                 <iframe
                   aria-hidden="true"
                   loading="lazy"
-                  src={selectedProject.href}
+                  src={sheetLink.href}
                   tabIndex={-1}
-                  title={`Превью ${selectedProject.label}`}
+                  title={`Превью ${sheetLink.label}`}
                 />
               )}
             </div>
 
-            <div className="mobile-sheet-copy">
+            <div className="sonya-sheet-copy">
               <a
-                href={selectedProject.telegram.href}
+                className="pin2-sheet-telegram"
+                href={sheetLink.telegram.href}
                 rel="noreferrer"
                 target="_blank"
               >
-                {selectedProject.telegram.label}
+                {sheetLink.telegram.label}
               </a>
-              <p>{selectedProject.description}</p>
+              <p>{sheetLink.description}</p>
             </div>
 
             <a
-              className="mobile-sheet-action"
-              href={selectedProject.href}
+              className="sonya-sheet-action"
+              href={sheetLink.href}
               rel="noreferrer"
               target="_blank"
             >
@@ -197,19 +235,6 @@ export default function Home() {
           </section>
         </div>
       ) : null}
-
-      <Link className="catalog-switch" href="/sonya">
-        sonya
-      </Link>
-
-      <Script
-        src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"
-        strategy="afterInteractive"
-        type="module"
-      />
-
-      <script dangerouslySetInnerHTML={{ __html: pinLoaderSeenScript }} />
-      <PinLoader />
     </main>
   );
 }
