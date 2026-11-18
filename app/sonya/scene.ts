@@ -52,6 +52,8 @@ type SceneOptions = {
    * «black» — сплошной чёрный без фоновых проходов (главная, ПИН2).
    */
   background?: "field" | "black";
+  /** Три тона рампы модели; по умолчанию — палитра /sonya. */
+  modelPalette?: { shadow: string; mid: string; light: string };
 };
 
 export type SceneHandle = {
@@ -125,10 +127,11 @@ export function createScene(options: SceneOptions): SceneHandle {
   const blackTexture = new DataTexture(new Uint8Array([0, 0, 0, 255]), 1, 1);
   blackTexture.needsUpdate = true;
 
+  const modelPalette = options.modelPalette ?? PALETTE;
   const uniforms = {
-    uShadow: { value: hexToRgb(PALETTE.shadow) },
-    uMid: { value: hexToRgb(PALETTE.mid) },
-    uLight: { value: hexToRgb(PALETTE.light) },
+    uShadow: { value: hexToRgb(modelPalette.shadow) },
+    uMid: { value: hexToRgb(modelPalette.mid) },
+    uLight: { value: hexToRgb(modelPalette.light) },
     uSteps: { value: TONE_STEPS },
     uTime: { value: 0 },
     uCameraVideo: { value: blackTexture as VideoTexture | DataTexture },
@@ -189,9 +192,10 @@ export function createScene(options: SceneOptions): SceneHandle {
 
   const compositeUniforms = {
     uField: { value: null as WebGLRenderTarget["texture"] | null },
-    uShadow: uniforms.uShadow,
-    uMid: uniforms.uMid,
-    uLight: uniforms.uLight,
+    // фон всегда в палитре /sonya, даже если модель перекрашена
+    uShadow: { value: hexToRgb(PALETTE.shadow) },
+    uMid: { value: hexToRgb(PALETTE.mid) },
+    uLight: { value: hexToRgb(PALETTE.light) },
     uSteps: { value: BACKGROUND_TONES - 1 },
   };
 

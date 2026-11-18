@@ -19,6 +19,13 @@ import type { PointerTracker } from "./sonya/tracking";
  */
 const SHEET_QUERY = "(max-width: 700px), (hover: none)";
 
+/** Белая модель: тень — светло-серая, чтобы форма читалась на чёрном. */
+const WHITE_MODEL = {
+  shadow: "#a8a8a8",
+  mid: "#e0e0e0",
+  light: "#ffffff",
+} as const;
+
 export default function Pin2Page() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isReady, setIsReady] = useState(false);
@@ -53,6 +60,7 @@ export default function Pin2Page() {
         modelUrl: assetPath("/model.glb"),
         pointer: tracker.signal,
         background: "black",
+        modelPalette: WHITE_MODEL,
         onReady: () => setIsReady(true),
         onError: (error) => {
           // страница остаётся рабочей: ссылки на месте, фон чёрный
