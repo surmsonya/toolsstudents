@@ -50,7 +50,7 @@ test("server-renders the one-screen PIN1 catalog", async () => {
 
   const html = await response.text();
   assert.match(html, /<title>ПИН1<\/title>/i);
-  assert.match(html, /<model-viewer[^>]*src="\/model\.glb"/i);
+  assert.match(html, /<model-viewer[^>]*src="\/pin2-model\.glb"/i);
   assert.doesNotMatch(html, /<model-viewer[^>]*poster=/i);
   assert.match(html, /class="pin-loader"/);
   assert.match(html, /sweet-crepe/);
@@ -99,9 +99,9 @@ test("keeps the catalog viewport-bound and model-ready", async () => {
   assert.match(page, /открыть тул/);
   assert.match(page, /auto-rotate/);
   assert.match(page, /camera-controls/);
-  assert.match(page, /assetPath\("\/model\.glb"\)/);
+  assert.match(page, /assetPath\("\/pin2-model\.glb"\)/);
   assert.doesNotMatch(page, /model-poster/);
-  assert.match(page, /<PinLoader \/>/);
+  assert.match(layout, /<PinLoader \/>/);
   assert.match(page, /@google\/model-viewer/);
   assert.doesNotMatch(layout, /@google\/model-viewer/);
   assert.doesNotMatch(page, /SkeletonPreview/);
@@ -134,7 +134,7 @@ test("keeps the sonya page on one shared source of truth", async () => {
   assert.match(css, /height:\s*100dvh/);
   assert.match(css, /"Helvetica Neue", Helvetica/);
   assert.match(page, /sonyaLinks/);
-  assert.match(page, /assetPath\("\/model\.glb"\)/);
+  assert.match(page, /assetPath\("\/pin2-model\.glb"\)/);
   assert.match(scene, /DRACO_GLTF_CONFIG/);
   assert.match(shaders, /PALETTE/);
   assert.match(shaders, /bayer8/);

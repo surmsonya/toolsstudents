@@ -72,12 +72,17 @@ export function PinLoader() {
     const onReady = () => {
       modelReady = true;
     };
-    if (!model || model.loaded) {
+    const canvas = document.querySelector(".sonya-canvas");
+    if (model?.loaded || canvas?.classList.contains("is-ready") || (!model && !canvas)) {
       modelReady = true;
-    } else {
+    } else if (model) {
       model.addEventListener("load", onReady, { once: true });
       model.addEventListener("error", onReady, { once: true });
     }
+    const observer = canvas ? new MutationObserver(() => {
+      if (canvas.classList.contains("is-ready")) onReady();
+    }) : null;
+    if (canvas) observer?.observe(canvas, { attributes: true, attributeFilter: ["class"] });
     later(onReady, MODEL_TIMEOUT_MS);
 
     const runCycle = () => {
@@ -123,6 +128,7 @@ export function PinLoader() {
       timers.forEach((id) => window.clearTimeout(id));
       model?.removeEventListener("load", onReady);
       model?.removeEventListener("error", onReady);
+      observer?.disconnect();
     };
   }, []);
 

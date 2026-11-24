@@ -62,7 +62,7 @@ export default function SonyaPage() {
 
       scene = createScene({
         canvas,
-        modelUrl: assetPath("/model.glb"),
+        modelUrl: assetPath("/pin2-model.glb"),
         pointer: tracker.signal,
         onReady: () => setIsReady(true),
         onError: (error) => {

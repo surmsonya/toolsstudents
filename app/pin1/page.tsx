@@ -5,7 +5,6 @@ import { useEffect, useRef, useState, type MouseEvent } from "react";
 
 import { assetPath, links, type Project } from "../catalog-data";
 import { PageSwitch } from "../page-switch";
-import { PinLoader, pinLoaderSeenScript } from "../pin-loader";
 
 /*
  * Лист заменяет ховерное превью и при сужении окна, и на тач-устройстве
@@ -59,7 +58,7 @@ export default function Pin1Page() {
     <main className="catalog" aria-label="ПИН1">
       <model-viewer
         class="catalog-model"
-        src={assetPath("/model.glb")}
+        src={assetPath("/pin2-model.glb")}
         alt="Interactive 3D model"
         auto-rotate
         auto-rotate-delay="0"
@@ -206,8 +205,6 @@ export default function Pin1Page() {
         type="module"
       />
 
-      <script dangerouslySetInnerHTML={{ __html: pinLoaderSeenScript }} />
-      <PinLoader />
     </main>
   );
 }

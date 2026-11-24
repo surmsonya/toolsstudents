@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { PinLoader, pinLoaderSeenScript } from "./pin-loader";
 
 const publicBasePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const siteUrl = "https://surmsonya.github.io/toolsstudents";
@@ -48,7 +49,11 @@ export default function RootLayout({
   return (
     // data-pin-seen ставит скрипт экрана загрузки до гидрации.
     <html lang="ru" suppressHydrationWarning>
-      <body>{children}</body>
+      <body>
+        <script dangerouslySetInnerHTML={{ __html: pinLoaderSeenScript }} />
+        {children}
+        <PinLoader />
+      </body>
     </html>
   );
 }
