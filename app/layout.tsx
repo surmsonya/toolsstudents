@@ -4,7 +4,7 @@ import { PinLoader, pinLoaderSeenScript } from "./pin-loader";
 
 const publicBasePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const siteUrl = "https://surmsonya.github.io/toolsstudents";
-const socialImageUrl = `${siteUrl}/og.png`;
+const socialImageUrl = `${siteUrl}/og-20261124.jpg`;
 const title = "ПИН тулз";
 const description = "коллекция работ студентов курса ПИН школы @sholotch";
 
@@ -27,8 +27,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: socialImageUrl,
-        width: 3024,
-        height: 1718,
+        width: 1141,
+        height: 630,
         alt: title,
       },
     ],
